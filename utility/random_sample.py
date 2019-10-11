@@ -4,7 +4,7 @@
     Date: 10/11/2019
 
     How to run:
-    python <filename.py> -dir <input_dir> -o <dutput_dir> -s <sample-size>
+    python <filename.py> -idir <input_dir> -odir <dutput_dir> -s <sample-size>
 '''
 import os
 import sys
@@ -42,8 +42,8 @@ def process_folder(input_dir,output_dir,size):
         
 def main(argv):
     parser = argparse.ArgumentParser(add_help=True,description=('Same rows from the dataset'))
-    parser.add_argument('--directory', '-dir', help='Input folder directory')
-    parser.add_argument('--output_dir', '-o', help='Output folder directory')
+    parser.add_argument('--directory', '-idir', help='Input folder directory')
+    parser.add_argument('--output_dir', '-odir', help='Output folder directory')
     parser.add_argument('--sample', '-s', type=int, help='Sample size')
 
     try:
