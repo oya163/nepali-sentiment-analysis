@@ -27,11 +27,12 @@ def process_file(file,input_dir,output_dir,size):
         comment = item['text']
         if (check_devnagari(comment)):
             json_data.append(item)
-    print("size",size)
-    sample_data = np.random.choice(json_data, size, replace=False)
-    print(sample_data)
+    if (len(json_data)>size):
+        sample_data = np.random.choice(json_data, size, replace=False).tolist()
+    else:
+        sample_data = json_data
     with open(os.path.join(output_dir, file), 'w', encoding='utf-8') as f:
-        json.dump(sample_data.tolist(), f, ensure_ascii=False, indent=4)
+        json.dump(sample_data, f, ensure_ascii=False, indent=4)
 
 def process_folder(input_dir,output_dir,size):
     for filename in os.listdir(input_dir):
