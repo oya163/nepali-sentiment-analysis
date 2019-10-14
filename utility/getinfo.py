@@ -63,9 +63,13 @@ def main():
             parsedTime = dt.datetime.strptime(videoLength, "PT%MM%SS")
             myFormat = "%M:%S"
         except:
-            # For video more than an hour
-            parsedTime = dt.datetime.strptime(videoLength, "PT%HH%MM%SS")
-            myFormat = "%H:%M:%S"
+            try:
+                parsedTime = dt.datetime.strptime(videoLength, "PT%MM")
+                myFormat = "%M:00"
+            except:
+                # For video more than an hour
+                parsedTime = dt.datetime.strptime(videoLength, "PT%HH%MM%SS")
+                myFormat = "%H:%M:%S"
         
         videoLength = parsedTime.strftime(myFormat)
 
