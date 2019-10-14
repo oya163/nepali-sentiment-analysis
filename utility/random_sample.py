@@ -20,6 +20,13 @@ import argparse
 import numpy as np
 import emoji
 
+emoji_pattern = re.compile("["
+        u"\U0001F600-\U0001F64F"  # emoticons
+        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                           "]+", flags=re.UNICODE)
+
 
 def check_devnagari(comment):
     count = re.findall("[\u0900-\u097F]+", comment)
@@ -35,7 +42,8 @@ def write_txt(output_dir, file, sample_data):
     with open(os.path.join(output_dir, file), 'w', encoding='utf-16') as f:
         for obj in sample_data:
             comment = obj['text'];
-            plain_txt = emoji.demojize(comment)
+            #plain_txt = emoji.demojize(comment)
+            plain_txt = emoji_pattern.sub(r'', comment)
             f.write(plain_txt+"\n")
 
 def process_file(file,input_dir,size):
