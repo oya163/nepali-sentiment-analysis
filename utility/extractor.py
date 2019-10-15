@@ -14,7 +14,7 @@ def main():
         comments = json.load(f)
         
     for each in enumerate(comments):
-        msg = emoji.demojize(each[1]['commentText'])+'\n'
+        msg = emoji.demojize(each[1]['text'])+'\n'
         filename = str(each[0])+'_ravi'
         txtfile = filename + '.txt'
         annfile = filename + '.ann'
