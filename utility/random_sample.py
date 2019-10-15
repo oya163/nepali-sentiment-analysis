@@ -7,6 +7,7 @@
 
     How to run:
     python <filename.py> -idir <input_dir> -odir <dutput_dir> -s <sample-size>
+    python random_sample.py -idir ../data/youtube/raw -odir ../data/youtube/sampled/
 
     Description:
     - Sample out n data from the dataset
@@ -85,7 +86,7 @@ def process_file(file, input_dir, size):
 # Store into given folder
 def process_folder(input_dir, output_dir_json, output_dir_txt, size):
     for filename in os.listdir(input_dir):
-        print(filename)
+        print(os.path.join(input_dir,filename))
         if filename.endswith(".json"):
             sample_data = process_file(filename, input_dir, size)
             write_json(output_dir_json,filename,sample_data)
@@ -107,15 +108,19 @@ def main(argv):
         if not os.path.exists(input_dir):
             raise ValueError('Input Folder not found')
         
-        output_dir_json = output_dir+"_json"
-        output_dir_txt = output_dir+"_txt"
         
-        if not os.path.exists(output_dir_json):
-            os.makedirs(output_dir_json)
-        if not os.path.exists(output_dir_txt):
-            os.makedirs(output_dir_txt)    
-        
-        process_folder(input_dir, output_dir_json,output_dir_txt, size)
+        for dirs in os.listdir(input_dir):
+            input_path = os.path.join(input_dir, dirs)
+            root_dir = os.path.basename(input_path)
+            output_dir_json = os.path.join(output_dir, root_dir+"_json")
+            output_dir_txt = os.path.join(output_dir, root_dir+"_txt")
+
+            if not os.path.exists(output_dir_json):
+                os.makedirs(output_dir_json)
+            if not os.path.exists(output_dir_txt):
+                os.makedirs(output_dir_txt)    
+            
+            process_folder(input_path, output_dir_json, output_dir_txt, size)
         
     except Exception as e:
         print('Error: ',str(e))
