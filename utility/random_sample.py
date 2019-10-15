@@ -48,13 +48,25 @@ def write_json(output_dir, file, sample_data):
 
 
 # Write into TXT file
+'''
+    Removes all emojis completely for text file
+    Because text files are used in BRAT annotation
+    Emojis are not necessary as of now
+    Also, causing problem in lemmatizer
+'''
 def write_txt(output_dir, file, sample_data):
     with open(os.path.join(output_dir, file), 'w', encoding='utf-16') as f:
         for obj in sample_data:
             comment = obj['text'];
-            #plain_txt = emoji.demojize(comment)
+
+            # Removal of emoji
             plain_txt = emoji_pattern.sub(r'', comment)
-            f.write(plain_txt+"\n")
+
+            # Cite the paper
+            # Removal of very short or lengthy comments
+            plain_txt = plain_txt.split()
+            if len(plain_txt) > 3 and len(plain_txt) < 50:
+                f.write(' '.join(plain_txt)+"\n")
 
 
 # Randomly sample comments
