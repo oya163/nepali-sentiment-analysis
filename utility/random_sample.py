@@ -61,12 +61,16 @@ def write_txt(output_dir, file, sample_data):
             comment = obj['text'];
 
             # Removal of emoji
-            plain_txt = emoji_pattern.sub(r'', comment)
-
+            plain_txt = emoji_pattern.sub(r'', comment).split()
+			
+			# If sentence ender not found, then add it
+			# Because we need to split sentence in unitag.exe
+            if plain_txt[-1] not in ['?', '!', '|', '?'] and plain_txt[-1][-1] not in ['?', '!', '|', '?']:
+                plain_txt.append('?')
+				
             # Cite the paper
             # Removal of very short or lengthy comments
-            plain_txt = plain_txt.split()
-            if len(plain_txt) > 3 and len(plain_txt) < 50:
+            if len(plain_txt) > 5 and len(plain_txt) < 50:
                 f.write(' '.join(plain_txt)+"\n")
 
 
@@ -87,10 +91,14 @@ def process_file(file, input_dir, size):
 def process_folder(input_dir, output_dir_json, output_dir_txt, size):
     for filename in os.listdir(input_dir):
         print(os.path.join(input_dir,filename))
+        file_name = filename.split('.')
         if filename.endswith(".json"):
             sample_data = process_file(filename, input_dir, size)
-            write_json(output_dir_json,filename,sample_data)
-            write_txt(output_dir_txt,filename.split(".")[0]+".txt",sample_data)
+            write_json(output_dir_json, filename, sample_data)
+            txt_dir = os.path.join(output_dir_txt, file_name[0])
+            if not os.path.exists(txt_dir):
+                os.mkdir(txt_dir)
+            write_txt(txt_dir, filename.split(".")[0]+".txt", sample_data)
         
 
 # Process arguments
@@ -112,8 +120,8 @@ def main(argv):
         for dirs in os.listdir(input_dir):
             input_path = os.path.join(input_dir, dirs)
             root_dir = os.path.basename(input_path)
-            output_dir_json = os.path.join(output_dir, root_dir+"_json")
-            output_dir_txt = os.path.join(output_dir, root_dir+"_txt")
+            output_dir_json = os.path.join(output_dir, "json", root_dir+"_json")
+            output_dir_txt = os.path.join(output_dir, "txt", root_dir+"_txt")
 
             if not os.path.exists(output_dir_json):
                 os.makedirs(output_dir_json)
