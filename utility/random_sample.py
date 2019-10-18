@@ -91,10 +91,14 @@ def process_file(file, input_dir, size):
 def process_folder(input_dir, output_dir_json, output_dir_txt, size):
     for filename in os.listdir(input_dir):
         print(os.path.join(input_dir,filename))
+        file_name = filename.split('.')
         if filename.endswith(".json"):
             sample_data = process_file(filename, input_dir, size)
-            write_json(output_dir_json,filename,sample_data)
-            write_txt(output_dir_txt,filename.split(".")[0]+".txt",sample_data)
+            write_json(output_dir_json, filename, sample_data)
+            txt_dir = os.path.join(output_dir_txt, file_name[0])
+            if not os.path.exists(txt_dir):
+                os.mkdir(txt_dir)
+            write_txt(txt_dir, filename.split(".")[0]+".txt", sample_data)
         
 
 # Process arguments
