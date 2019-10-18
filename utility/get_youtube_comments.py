@@ -1,5 +1,21 @@
 import os
 
+'''
+    Author: Sandesh Timilsina
+    Date: 10/15/2019
+
+    How to run:
+        python <filename.py>
+    
+    Description:
+        Given a list of video ids, this script downloads
+        all the comments from the youtube.
+
+    Requirement:
+        Install youtube-comment-scrapper-cli.
+'''
+
+
 urls= ['RxfWgvB-Zcc',
 'x5zHAu_UULI',
 '7aSSjVrkYmI',
