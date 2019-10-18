@@ -4,14 +4,24 @@
 	
 	Author - Oyesh Mann Singh
 	Date - 10/16/2016
+	
+	How to run:
+		python unitag_to_conll.py -idir ..\data\youtube\sampled\txt
 '''
 
 import csv
 import sys
 import os
+import argparse
+import shutil
 
-input_dir = sys.argv[1]
+parser = argparse.ArgumentParser(add_help=True, description=('Unitag format to CoNLL Format Parser'))
+parser.add_argument('--input_dir', '-idir', metavar='PATH', help='Input path directory')
 
+args = parser.parse_args()
+
+# Converts Unitag.exe output file
+# into CoNLL format file
 def converter(inputfile, outputfile):
 	with open(inputfile,'r', encoding='utf16') as in_file, open(outputfile,'w', encoding='utf8') as out_file:
 		reader = csv.reader(in_file, delimiter='\t', quoting=csv.QUOTE_NONE, skipinitialspace=True)
@@ -25,7 +35,9 @@ def converter(inputfile, outputfile):
 			else:
 				out_file.write(word+'\t'+pos_tag+'\n')
 				
-
+				
+# Extracts text_only and tag_only from
+# CoNLL format file
 def text_tag(inputfile, sent_file, tag_file):
 	with open(inputfile,'r', encoding='utf-8') as in_file, open(sent_file,'w', encoding='utf-8') as txt_f, open(tag_file,'w', encoding='utf-8') as tag_f:
 		sentence = []
@@ -52,18 +64,24 @@ def text_tag(inputfile, sent_file, tag_file):
 				
 				
 def main():
-	for root, dirs, files in os.walk(input_dir):
+	for root, dirs, files in os.walk(args.input_dir):
 		for file in files:
 			filename = file.split('.')
 			if filename[1] == 'txt_utg':
-				input_path = os.path.join(root, file)
-				out_path = os.path.join(root, filename[0]+'.iob.txt')
-				print("Processing file : ", input_path)
-				converter(input_path, out_path)
-				sent_path = os.path.join(root, filename[0]+'.sent.txt')
-				tag_path = os.path.join(root, filename[0]+'.tag.txt')
-				print("Processing file : ", out_path)
-				text_tag(out_path, sent_path, tag_path)
+				input_file = os.path.join(root, file)	
+				out_file = os.path.join(root, filename[0]+'.iob.txt')
+				
+				# Converts Unitag format to CoNLL format 
+				print("Processing file : ", input_file)
+				converter(input_file, out_file)
+				
+				sent_file = os.path.join(root, filename[0]+'.sent.txt')
+				tag_file = os.path.join(root, filename[0]+'.tag.txt')
+				
+				# Creates text_only and tag_only files
+				print("Processing file : ", out_file)
+				text_tag(out_file, sent_file, tag_file)
 
+				
 if __name__ == "__main__":
 	main()
