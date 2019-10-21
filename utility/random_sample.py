@@ -82,9 +82,8 @@ def process_file(file, input_dir, size):
         comment = item['text']
         if (check_devnagari(comment)):
             json_data.append(item)
-    if (len(json_data)>size):
-        return np.random.choice(json_data, size, replace=False).tolist()
-    return json_data
+    json_data.sort(key= lambda k : k['likes'], reverse=True)
+    return json_data[:100]
 
 
 # Store into given folder
