@@ -104,8 +104,8 @@ def process_folder(input_dir, output_dir_json, output_dir_txt, size):
 # Process arguments
 def main(argv):
     parser = argparse.ArgumentParser(add_help=True, description=('Random Sample Parser'))
-    parser.add_argument('--directory', '-idir', metavar='PATH', help='Input folder directory')
-    parser.add_argument('--output_dir', '-odir', metavar='PATH', help='Output folder directory')
+    parser.add_argument('--directory', '-idir', default='./data/youtube/raw', metavar='PATH', help='Input folder directory')
+    parser.add_argument('--output_dir', '-odir', default='./data/youtube/sampled', metavar='PATH', help='Output folder directory')
     parser.add_argument('--sample', '-s', metavar='N', default=100, type=int, help='Sample size <default:100>')
     try:
         args = parser.parse_args(argv)
