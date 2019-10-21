@@ -1,3 +1,3 @@
-pandas
-tqdm
-scikit-learn
+argparse
+numpy
+emoji
