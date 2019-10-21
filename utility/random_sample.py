@@ -66,7 +66,7 @@ def write_txt(output_dir, file, sample_data):
 			# If sentence ender not found, then add it
 			# Because we need to split sentence in unitag.exe
             if plain_txt[-1] not in ['?', '!', '|', '।'] and plain_txt[-1][-1] not in ['?', '!', '|', '।']:
-                plain_txt.append('?')
+                plain_txt.append('।')
 				
             # Cite the paper
             # Removal of very short or lengthy comments
