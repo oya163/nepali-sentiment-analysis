@@ -60,24 +60,23 @@ def write_txt(output_dir, sample_data):
     for obj in sample_data:
         cid = obj['id']
         filename = os.path.join(output_dir, cid+'.txt')
-        
-        with open(filename, 'w', encoding='utf-16') as f:
-            comment = obj['text']
-            
-            # Removal of emoji
-            plain_txt = emoji_pattern.sub(r' ', comment).split()
+       
+        comment = obj['text']
 
-            # If sentence ender not found, then add it
-            # Because we need to split sentence in unitag.exe
-            if plain_txt[-1] not in ['?', '!', '|', '।'] and plain_txt[-1][-1] not in ['?', '!', '|', '।']:
-                plain_txt.append('।')
+        # Removal of emoji
+        plain_txt = emoji_pattern.sub(r' ', comment).split()
 
-            # Cite the paper
-            # Removal of very short or lengthy comments
-            if len(plain_txt) > 5 and len(plain_txt) < 50:
+        # If sentence ender not found, then add it
+        # Because we need to split sentence in unitag.exe
+        if plain_txt[-1] not in ['?', '!', '|', '।'] and plain_txt[-1][-1] not in ['?', '!', '|', '।']:
+            plain_txt.append('।')
+
+        # Cite the paper
+        # Removal of very short or lengthy comments
+        if len(plain_txt) > 5 and len(plain_txt) < 50:
+            with open(filename, 'w', encoding='utf-16') as f:
                 f.write(' '.join(plain_txt)+"\n")
-                
-        f.close()
+            f.close()
 
 
 # Randomly sample comments
