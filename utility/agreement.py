@@ -107,7 +107,7 @@ def main(**args):
     e.evaluate_conll_file(logger, output_file)
     
     print("***************Kappa Evaluation Metric***************")
-    logger.info("Kappa coefficient =", kappa(a1_tokens, a2_tokens))
+    logger.info("Kappa coefficient = {}".format(kappa(a1_tokens, a2_tokens)))
     
 
 if __name__=="__main__":
