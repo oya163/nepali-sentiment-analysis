@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# As of now, this script should be in brat/tools/
 # How to run
 # bash anntoconll.sh ../data/nepsa/Avenues_Khabar/0S8tX4eRa6M/
 
