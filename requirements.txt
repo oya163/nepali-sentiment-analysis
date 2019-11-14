@@ -1,3 +1,5 @@
 argparse
 numpy
 emoji
+pandas
+sklearn
