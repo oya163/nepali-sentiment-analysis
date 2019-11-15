@@ -6,6 +6,9 @@
     Author: Oyesh Mann Singh
     Date: 11/12/2019
 
+    How to run:
+        python utility/agreement.py -i test/oyesh_conll_v4/ -j test/sandesh_conll_v4/ -v
+
 '''
 
 import os
