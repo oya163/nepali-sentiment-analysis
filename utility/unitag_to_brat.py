@@ -22,7 +22,9 @@ import argparse
 import shutil
 import string
 
-replacement = [("झो ले", "झोले")]
+# These are new words but unitag.exe is stemming them
+# unnecessarily. So, we need to merge them
+replacement = [("झो ले", "झोले"), ("दि ले", "दिले"), ("मण्ड ले", "मण्डले")]
 
 parser = argparse.ArgumentParser(add_help=True, description=('Unitag format to CoNLL Format Parser'))
 parser.add_argument('--input_dir', '-idir', default='../data/youtube/sampled/txt', metavar='PATH', help='Input path directory')
@@ -75,15 +77,18 @@ def text_tag(inputfile, sent_file, tag_file):
 	print("Text tag file prepared !!!")
 
 
+# Replace the first string of replacement list
+# with its second counterpart
 def preprocess(input_file):
 	f = open(input_file, 'r+', encoding='utf8')
 	text = f.readlines()
 
 	f.seek(0)
-	for each in replacement:
-		for sents in text:
-			new_sent = sents.replace(each[0], each[1])
-			f.write(new_sent)
+    
+	for sents in text:
+		for each in replacement:
+			sents = sents.replace(each[0], each[1])
+		f.write(sents)
 	f.truncate()  
 	f.close()
 
