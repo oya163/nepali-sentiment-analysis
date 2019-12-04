@@ -21,10 +21,10 @@ import shutil
 from sklearn.metrics import cohen_kappa_score as kappa
 
 try:
-    import conll_eval as e
+    import conlleval_perl as e
     import utilities as utilities
 except ImportError:
-    import utility.conll_eval as e
+    import utility.conlleval_perl as e
     import utility.utilities as utilities
 
     
@@ -67,8 +67,9 @@ def merger(input_dir_1, input_dir_2, output_file, verbose):
 
             with open(input_file_1,'r', encoding='utf-8') as first_file, open(input_file_2,'r', encoding='utf-8') as second_file:
                 for (i1,row1),(i2,row2) in zip(enumerate(first_file), enumerate(second_file)):
-                    #To know which line is defunct in file
-                    #print(i+1)
+                    # To know which line is defunct in file
+#                     print("Defunct line on first file", i1+1)
+#                     print("Defunct line on second file", i2+1)
                     if len(row1) > 1 or len(row2) > 1:
                         row1 = row1.split()
                         row2 = row2.split()
@@ -107,7 +108,7 @@ def main(**args):
     # Start evaluating merged conll file
     logger = utilities.get_logger(log_file)
     print("***************F1 Evaluation Metric***************")
-    e.evaluate_conll_file(logger, output_file)
+    e.evaluate_conll_file(logger=logger, fileName=output_file, raw=True,delimiter=None,oTag='O',latex=False)
     
     print("***************Kappa Evaluation Metric***************")
     logger.info("Kappa coefficient = {}".format(kappa(a1_tokens, a2_tokens)))
