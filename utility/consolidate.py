@@ -51,27 +51,32 @@ def main():
             
     # Go through each folder 
     # Create a conll file based on video name
-    for root, dirs, files in os.walk(input_dir):
-        for f in files:
-            filename = os.path.join(root, f)
-            if filename.split('.')[-1] == 'conll':
-                pathlist = filename.split('/')
-                channel_name = pathlist[-3]
-                output_folder = os.path.join(output_dir, channel_name)
-                
-                if not os.path.exists(output_folder):
-                    os.mkdir(output_folder)
-                    
-                video_name = pathlist[-2]
-                output_file = os.path.join(output_folder, video_name + '.conll')
-                
-                with open(output_file, 'a', encoding=encoding) as o_f:
-                    i_f = open(filename, 'r', encoding=encoding)
-                    o_f.write(i_f.read())
-#                     reader = i_f.readlines()
-#                     for row in reader:
-#                         o_f.write(row)
-                    o_f.write('\n')
+    total_file = os.path.join(output_dir, 'total.conll')
+    with open(total_file, 'w', encoding=encoding) as t_f:
+        for root, dirs, files in os.walk(input_dir):
+            for f in files:
+                filename = os.path.join(root, f)
+                if filename.split('.')[-1] == 'conll':
+                    pathlist = filename.split('/')
+                    channel_name = pathlist[-3]
+                    output_folder = os.path.join(output_dir, channel_name)
+
+                    if not os.path.exists(output_folder):
+                        os.mkdir(output_folder)
+
+                    video_name = pathlist[-2]
+                    output_file = os.path.join(output_folder, video_name + '.conll')
+
+                    with open(output_file, 'a', encoding=encoding) as o_f:
+                        i_f = open(filename, 'r', encoding=encoding)
+                        data = i_f.read()
+                        o_f.write(data)
+                        t_f.write(data)
+    #                     reader = i_f.readlines()
+    #                     for row in reader:
+    #                         o_f.write(row)
+                        o_f.write('\n')
+                        t_f.write('\n')
 
 
 if __name__ == "__main__":
