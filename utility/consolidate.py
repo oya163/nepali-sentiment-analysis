@@ -9,16 +9,16 @@
 		python utility/conlltodataset.py
         
     Output Directory structure:
-        Avenues_khabar
-            0S8tX4eRa6M.conll
-            3XI16CXFcJA.conll
-            .
-            .
-        Canada_Nepal
-            7aSSjVrkYmI.conll
-            7I4HfcAnYzA.conll
-            .
-            .
+       |_ Avenues_khabar
+          |_ 0S8tX4eRa6M.conll
+          |_ 3XI16CXFcJA.conll
+          |_ .
+          |_ .
+       |_ Canada_Nepal
+          |_ 7aSSjVrkYmI.conll
+          |_ 7I4HfcAnYzA.conll
+          |_ .
+          |_ .
 '''
 
 import os
@@ -27,7 +27,7 @@ import subprocess
 import shutil
 
 parser = argparse.ArgumentParser(add_help=True, description=('CoNLL to Final Dataset'))
-parser.add_argument('--input_dir', '-idir', default='./brat/data/nepsa/', metavar='PATH', help='Input path directory')
+parser.add_argument('--input_dir', '-idir', default='../brat/data/nepsa/', metavar='PATH', help='Input path directory')
 parser.add_argument('--output_dir', '-odir', default='./data/dataset', metavar='PATH', help='Output path directory')
 parser.add_argument('--unicode', '-u', default='utf8', choices=['utf8','utf16'], metavar='UTF', help='Encoding format')
 
