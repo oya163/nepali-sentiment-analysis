@@ -1,0 +1,11 @@
+***********************ONLY RUNS ON WINDOWS***************************
+Add path to unitag.exe on PATH
+python ..\..\utility\sampler.py -idir ..\..\data\youtube\raw -odir ..\..\data\youtube\sampled
+
+cd nepali-unitag\bin
+python filepath_creator.py filelist.txt ..\..\data\youtube\sampled\txt
+
+Run unitag.exe
+unitag nepali-inst.txt filelist.txt L
+
+python unitag_to_brat.py -idir ..\data\youtube\sampled\txt

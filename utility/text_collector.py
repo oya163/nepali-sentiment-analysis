@@ -3,7 +3,7 @@
 	into one file
 	
 	Author - Oyesh Mann Singh
-	Date - 10/17/2016
+	Date - 10/17/2019
 	
 	How to run:
 		python utility/text_collector.py

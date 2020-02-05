@@ -1,8 +1,12 @@
 '''
 	Convert the output of unitag.exe
-	into CoNLL format file
+	into CoNLL format file for POS
 	Separates out text only and tag only
 	part into separate respective files
+    
+	Prepares the final text file
+	with light preprocessing before
+	passing it into BRAT annotation
 	
 	Author - Oyesh Mann Singh
 	Date - 10/16/2016
@@ -16,10 +20,15 @@ import sys
 import os
 import argparse
 import shutil
+import string
+
+# These are new words but unitag.exe is stemming them
+# unnecessarily. So, we need to merge them
+replacement = [("झो ले", "झोले"), ("दि ले", "दिले"), ("मण्ड ले", "मण्डले")]
 
 parser = argparse.ArgumentParser(add_help=True, description=('Unitag format to CoNLL Format Parser'))
-parser.add_argument('--input_dir', '-idir', default='..\data\youtube\sampled\txt', metavar='PATH', help='Input path directory')
-parser.add_argument('--output_dir', '-odir', default='..\data\\final', metavar='PATH', help='Output path directory')
+parser.add_argument('--input_dir', '-idir', default='../data/youtube/sampled/txt', metavar='PATH', help='Input path directory')
+parser.add_argument('--output_dir', '-odir', default='../data/final', metavar='PATH', help='Output path directory')
 
 args = parser.parse_args()
 
@@ -68,19 +77,36 @@ def text_tag(inputfile, sent_file, tag_file):
 	print("Text tag file prepared !!!")
 
 
+# Replace the first string of replacement list
+# with its second counterpart
+def preprocess(input_file):
+	f = open(input_file, 'r+', encoding='utf8')
+	text = f.readlines()
+
+	f.seek(0)
+    
+	for sents in text:
+		for each in replacement:
+			sents = sents.replace(each[0], each[1])
+		f.write(sents)
+	f.truncate()  
+	f.close()
+
+
 # Copy files from old directory hierarchy
 # to new hierarchy before BRAT annotation
 def copyfiles():
 	for root, dirs, files in os.walk(args.input_dir):
 		for file in files:
 			filename = file.split('.')         # Splitting to get the middle name of file name
-			root_name = root.split('\\')       # Splitting root to get the last two directories
+			root_name = root.split('/')       # Splitting root to get the last two directories
 			dir_name = root_name[-2:]          # Get the last two directory name
 			final_dir=os.path.join(output_dir, dir_name[0], dir_name[1])
 			if not os.path.exists(final_dir):
 				os.makedirs(final_dir)
 			if filename[1] == 'sent':
 				input_file = os.path.join(root, file)
+				preprocess(input_file)
 				print("Copying file", input_file)
 				out_file = os.path.join(final_dir, filename[0]+'.txt')
 				if os.path.exists(out_file):
