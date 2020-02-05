@@ -77,7 +77,7 @@ def parser(df):
                 res['ent_from'] = int(row['Start']) 
                 res['ent_to'] = int(row['End'])
                 res['ent_cat'] = row['Aspect']
-#                 res[:2] = row['Keyword'],row['Aspect']
+
 
             elif asp in ASPECT_CATEGORIES:
                 aspect_term = row['Term'][-2:]
@@ -91,13 +91,13 @@ def parser(df):
                     res['asp_to'] = int(row['End'])
                     res['asp_cat'] = row['Aspect']
                     res['strength'] = strength_row[0]
-#                     res[2:] = row['Keyword'],row['Aspect'],strength_row[0]
+
                 else:
                     res['asp'] = row['Keyword']
                     res['asp_from'] = int(row['Start'])
                     res['asp_to'] = int(row['End'])
                     res['asp_cat'] = row['Aspect']
-#                     res[2:] = row['Keyword'],row['Aspect']
+
             output.append(res)
     return output
 
@@ -110,59 +110,75 @@ def get_splitpoint(text_list, all_text):
         out[i]= all_text.rfind(text_list[i])
     return out
 
-def split_multicomments(targeted_list, text, content):
+def get_filename(file):
+    return file.split('.')[0]
+
+def split_multicomments(input_dir, file, targeted_list, text, content, data):
     new_lines = get_splitpoint(text,content)
     new_lines.append(len(content)*2)
     status = [False]* len(targeted_list)
-    result_list = []
     for i in range(len(text)):
-        print(text[i])
-        result_list = []
+        channel, video_id = get_video_detail(input_dir)
+        result_entry = {'channel' : channel,
+                        'video_id' : video_id,
+                        'comment_id': get_filename(file)+'##'+str(i+1),
+                        'comment':text[i].strip(),
+                        'tags':[]}
+
+#         result_entry['comment'] = text[i].strip()
         for j in range(0,len(targeted_list)):
             if targeted_list[j].get('asp_from',0)!=0 and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
                 status[j] = True
-                result_list.append(targeted_list[j])
+                if i>0:
+                    targeted_list[j]['asp_from'] -= new_lines[i]+i 
+                    targeted_list[j]['asp_to'] -= new_lines[i]+i
+                    
+                if 'ent_from' in targeted_list[j]:
+                    targeted_list[j]['ent_from'] -= new_lines[i]+i
+                    targeted_list[j]['ent_to'] -= new_lines[i]+i
+                    
+                result_entry.get('tags').append(targeted_list[j])
+                
             elif targeted_list[j].get('ent_from',0)!=0 and targeted_list[j]['ent_from'] <= new_lines[i+1] and not status[j]:
                 status[j] = True
-                result_list.append(targeted_list[j])
-        printdict(result_list)
+                if i>0:
+                    targeted_list[j]['ent_from'] -= new_lines[i]+i
+                    targeted_list[j]['ent_to'] -= new_lines[i]+i
+                
+                if 'asp_from' in targeted_list[j]:
+                    targeted_list[j]['asp_from'] -= new_lines[i]+i 
+                    targeted_list[j]['asp_to'] -= new_lines[i]+i
+                    
+                result_entry.get('tags').append(targeted_list[j])
+        
+#         result_entry.get('tags').append(targeted_list[j])
+        data.append(result_entry)
+    return data
 
+def get_video_detail(inp_dir):
+    split_data = inp_dir.rsplit('/', 3)
+    return split_data[1],split_data[2]
+    
 def main():
     input_dir = '/home/sandesh/Desktop/brat/data/nepali_data/Avenues_Khabar/0S8tX4eRa6M/'
+    data = []
     for file in os.listdir(input_dir):
         f = os.path.join(input_dir,file)
         if f.endswith('ann') and os.stat(f).st_size != 0:
             df = file_to_df(f)
             text = read_textfile(f)
-            print(text)
             targated_list = parser(df)
+            result_entry = {}
             if (len(text)==1):
-                printdict(targated_list)
+                channel, video_id = get_video_detail(input_dir)
+                result_entry = { 'channel' : channel,
+                                 'video_id' : video_id,
+                                 'comment_id' : get_filename(file),
+                                 'comment':text[0].strip(),
+                                 'tags':targated_list
+                               }
+                data.append(result_entry)
             else:
-                print("multicomments")
                 content = read_textfile_asstring(f)
-                split_multicomments(targated_list, text, content)
-            
-            
-#     f = '/home/sandesh/Desktop/brat/data/nepali_data/Avenues_Khabar/0S8tX4eRa6M/UgwaKbMWS6RjkPma_Dt4AaABAg.ann'
-#     df = file_to_df(f)
-#     text = read_textfile(f)
-#     content = read_textfile_asstring(f)
-#     new_lines = get_splitpoint(text,content)
-#     new_lines.append(len(content)*2)
-#     targeted_list = parser(df)
-#     status = [False]* len(targeted_list)
-#     result_list = []
-#     for i in range(len(text)):
-#         print(new_lines[i], text[i])
-#         result_list = []
-#         for j in range(0,len(targeted_list)):
-#             if targeted_list[j].get('asp_from',0)!=0 and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
-#                 status[j] = True
-#                 result_list.append(targeted_list[j])
-#             elif targeted_list[j].get('ent_from',0)!=0 and targeted_list[j]['ent_from'] <= new_lines[i+1] and not status[j]:
-#                 status[j] = True
-#                 result_list.append(targeted_list[j])
-#         print(result_list)
-            
-main()
+                data = split_multicomments(input_dir, file, targated_list, text, content, data)
+    printdict(data)
