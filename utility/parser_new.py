@@ -2,6 +2,7 @@ import os
 import argparse
 import pandas as pd
 import numpy as np
+import json
 
 NER_CATEGORIES = ['PER','ORG','LOC','EVENT','DATE','NUM','MISC']
 ASPECT_CATEGORIES = ['GENERAL', 'PROFANITY', 'VIOLENCE','SARCASM','FEEDBACK','OUTOFSCOPE']
@@ -14,49 +15,117 @@ def file_to_df(file):
     df = df.drop([1,2],axis=1)
     return df
 
+def read_textfile(file):
+    text_file = file.split('.')[0]+'.txt'
+    f = open(text_file, 'r')
+    text = f.readlines()
+    f.close()
+    return text
+
+def read_textfile_asstring(file):
+    text_file = file.split('.')[0]+'.txt'
+    
+    content = ""
+    with open(text_file) as f:
+        content = f.read()
+    return content
+
 def parser(df):
     output= []
     df['visited']= False
     for idx,row in df.iterrows():
         if row['Aspect']=='towards':
             df.loc[idx,'visited']=True
-
-            res = [None]*5 # [NER, NER_CAT, ASPECT, ASP_CAT, Strength]
+            
+            res = {} # [NER, NER_CAT, ASPECT, ASP_CAT, Strength]
 
             aspect_term = row['Start'][-2:]
             ner_term = row['End'][-2:]
             entity_row,entity_idx = df[df['Term']==ner_term], df.index[df['Term']==ner_term].tolist()
-            df.loc[entity_idx[0],'visited']=True
+            
+            if not df.loc[entity_idx[0],'visited']:
+                df.loc[entity_idx[0],'visited']=True
 
             if len(entity_row)>=1:
-                res[:2] = entity_row['Keyword'].item(),entity_row['Aspect'].item()
+                res['ent'] = entity_row['Keyword'].item()
+                res['ent_from'] = int(entity_row['Start'].item()) 
+                res['ent_to'] = int(entity_row['End'].item())
+                res['ent_cat'] = entity_row['Aspect'].item()
+#                 res[:2] = entity_row['Keyword'].item(),entity_row['Aspect'].item()
+
             aspect_row, aspect_idx = df[df['Term']==aspect_term], df.index[df['Term']==aspect_term].tolist()
             strength_row, strength_idx = df[df['Start']==aspect_term], df.index[df['Start']==aspect_term].tolist()
 
             df.loc[aspect_idx[0],'visited']=True
             df.loc[strength_idx[0],'visited']=True
             if len(aspect_row)>=1:
-                res[2:] = aspect_row['Keyword'].item(),aspect_row['Aspect'].item(),strength_row['End'].item()
+                res['asp'] = aspect_row['Keyword'].item()
+                res['asp_from'] = int(aspect_row['Start'].item())
+                res['asp_to'] = int(aspect_row['End'].item())
+                res['asp_cat'] = aspect_row['Aspect'].item()
+                res['strength'] = strength_row['End'].item()
             output.append(res)
-    print(res)
+
     unvisted_df = df[df['visited']==False]
     for idx,row in unvisted_df.iterrows():
         if (df.loc[idx,'visited']==False):
             df.loc[idx,'visited']= True
-            res = [None]*5
+            res = {}
             asp = row['Aspect']
             if asp in NER_CATEGORIES:
-                res[:2] = row['Keyword'],row['Aspect']
+                res['ent'] = row['Keyword']
+                res['ent_from'] = int(row['Start']) 
+                res['ent_to'] = int(row['End'])
+                res['ent_cat'] = row['Aspect']
+#                 res[:2] = row['Keyword'],row['Aspect']
 
             elif asp in ASPECT_CATEGORIES:
                 aspect_term = row['Term'][-2:]
                 strength_row  = unvisted_df[unvisted_df['Start']==aspect_term]
-                strength_idx = df.index[df['Start']==aspect_term].tolist()
-                df.loc[strength_idx[0],'visited']= True
-                res[2:] = row['Keyword'],row['Aspect'],strength_row['End'].item()
+                if len(strength_row)>0:
+                    strength_idx = df.index[df['Start']==aspect_term].tolist()
+                    df.loc[strength_idx[0],'visited']= True
+                    strength_row = [item for item in strength_row['End'] if item is not 'YES']
+                    res['asp'] = row['Keyword']
+                    res['asp_from'] = int(row['Start'])
+                    res['asp_to'] = int(row['End'])
+                    res['asp_cat'] = row['Aspect']
+                    res['strength'] = strength_row[0]
+#                     res[2:] = row['Keyword'],row['Aspect'],strength_row[0]
+                else:
+                    res['asp'] = row['Keyword']
+                    res['asp_from'] = int(row['Start'])
+                    res['asp_to'] = int(row['End'])
+                    res['asp_cat'] = row['Aspect']
+#                     res[2:] = row['Keyword'],row['Aspect']
             output.append(res)
     return output
 
+def printdict(dict_data):
+    print(json.dumps(dict_data,indent=4, ensure_ascii=False))
+    
+def get_splitpoint(text_list, all_text):
+    out = [-1]*len(text_list)
+    for i in range(len(text_list)):
+        out[i]= all_text.rfind(text_list[i])
+    return out
+
+def split_multicomments(targeted_list, text, content):
+    new_lines = get_splitpoint(text,content)
+    new_lines.append(len(content)*2)
+    status = [False]* len(targeted_list)
+    result_list = []
+    for i in range(len(text)):
+        print(text[i])
+        result_list = []
+        for j in range(0,len(targeted_list)):
+            if targeted_list[j].get('asp_from',0)!=0 and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
+                status[j] = True
+                result_list.append(targeted_list[j])
+            elif targeted_list[j].get('ent_from',0)!=0 and targeted_list[j]['ent_from'] <= new_lines[i+1] and not status[j]:
+                status[j] = True
+                result_list.append(targeted_list[j])
+        printdict(result_list)
 
 def main():
     input_dir = '/home/sandesh/Desktop/brat/data/nepali_data/Avenues_Khabar/0S8tX4eRa6M/'
@@ -64,6 +133,36 @@ def main():
         f = os.path.join(input_dir,file)
         if f.endswith('ann') and os.stat(f).st_size != 0:
             df = file_to_df(f)
+            text = read_textfile(f)
+            print(text)
             targated_list = parser(df)
-            print(targated_list)
+            if (len(text)==1):
+                printdict(targated_list)
+            else:
+                print("multicomments")
+                content = read_textfile_asstring(f)
+                split_multicomments(targated_list, text, content)
+            
+            
+#     f = '/home/sandesh/Desktop/brat/data/nepali_data/Avenues_Khabar/0S8tX4eRa6M/UgwaKbMWS6RjkPma_Dt4AaABAg.ann'
+#     df = file_to_df(f)
+#     text = read_textfile(f)
+#     content = read_textfile_asstring(f)
+#     new_lines = get_splitpoint(text,content)
+#     new_lines.append(len(content)*2)
+#     targeted_list = parser(df)
+#     status = [False]* len(targeted_list)
+#     result_list = []
+#     for i in range(len(text)):
+#         print(new_lines[i], text[i])
+#         result_list = []
+#         for j in range(0,len(targeted_list)):
+#             if targeted_list[j].get('asp_from',0)!=0 and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
+#                 status[j] = True
+#                 result_list.append(targeted_list[j])
+#             elif targeted_list[j].get('ent_from',0)!=0 and targeted_list[j]['ent_from'] <= new_lines[i+1] and not status[j]:
+#                 status[j] = True
+#                 result_list.append(targeted_list[j])
+#         print(result_list)
+            
 main()
