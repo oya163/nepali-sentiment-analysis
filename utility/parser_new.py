@@ -43,7 +43,7 @@ def parser(df):
             ner_term = row['End'][-2:]
             entity_row,entity_idx = df[df['Term']==ner_term], df.index[df['Term']==ner_term].tolist()
             
-            if not df.loc[entity_idx[0],'visited']:
+            if not entity_row.empty and not df.loc[entity_idx[0],'visited']:
                 df.loc[entity_idx[0],'visited']=True
 
             if len(entity_row)>=1:
@@ -55,15 +55,21 @@ def parser(df):
 
             aspect_row, aspect_idx = df[df['Term']==aspect_term], df.index[df['Term']==aspect_term].tolist()
             strength_row, strength_idx = df[df['Start']==aspect_term], df.index[df['Start']==aspect_term].tolist()
+            
+            if not aspect_row.empty:
+                df.loc[aspect_idx[0],'visited']=True
+                
+            if not strength_row.empty:
+                df.loc[strength_idx[0],'visited']=True
 
-            df.loc[aspect_idx[0],'visited']=True
-            df.loc[strength_idx[0],'visited']=True
             if len(aspect_row)>=1:
                 res['asp'] = aspect_row['Keyword'].item()
                 res['asp_from'] = int(aspect_row['Start'].item())
                 res['asp_to'] = int(aspect_row['End'].item())
                 res['asp_cat'] = aspect_row['Aspect'].item()
-                res['strength'] = strength_row['End'].item()
+                if not strength_row.empty:
+                    strength_row = [item for item in strength_row['End'] if item is not 'YES']
+                    res['strength'] = strength_row[0]
             output.append(res)
 
     unvisted_df = df[df['visited']==False]
@@ -157,10 +163,9 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
 
 def get_video_detail(inp_dir):
     split_data = inp_dir.rsplit('/', 3)
-    return split_data[1],split_data[2]
+    return split_data[2],split_data[3]
     
-def main():
-    input_dir = '/home/sandesh/Desktop/brat/data/nepali_data/Avenues_Khabar/0S8tX4eRa6M/'
+def process_single_video(input_dir):
     data = []
     for file in os.listdir(input_dir):
         f = os.path.join(input_dir,file)
@@ -181,4 +186,19 @@ def main():
             else:
                 content = read_textfile_asstring(f)
                 data = split_multicomments(input_dir, file, targated_list, text, content, data)
-    printdict(data)
+    return data
+
+    
+def main():
+    input_dir = '/home/sandesh/Desktop/brat/data/nepsa'
+    for channel in os.listdir(input_dir):
+        json_data = []
+        input_path = os.path.join(input_dir, channel)
+        if channel == 'avenues_khabar': 
+            for file in os.listdir(input_path):
+                vid_path = os.path.join(input_dir,channel,file)
+                data = process_single_video(vid_path)
+                json_data.extend(data)
+            printdict(json_data)
+                
+main()
