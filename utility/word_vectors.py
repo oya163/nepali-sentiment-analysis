@@ -15,7 +15,7 @@ from gensim.models import Word2Vec, KeyedVectors, FastText
 parser = argparse.ArgumentParser(add_help=True, description=('Text Collector Parser'))
 parser.add_argument('--input_dir', '-idir', default='../data/channels/comments', metavar='PATH', help='Input path directory')
 parser.add_argument('--output_dir', '-odir', default='../data/embeddings', metavar='PATH', help='Output path directory')
-parser.add_argument('--embeddings', '-e', default='word2vec', choices=['word2vec', 'fasttext'], metavar='STR', help='Embeddings')
+parser.add_argument('--embeddings', '-e', default='fasttext', choices=['word2vec', 'fasttext'], metavar='STR', help='Embeddings')
 parser.add_argument('--embed_type', '-t', default=0, choices=[0, 1], metavar='INT', help='Embeddings Type 0: skip_gram, 1: cbow, default: 0}')
 parser.add_argument('--eval_mode', '-m', default=False, action="store_true", help='Evaluation mode')
 parser.add_argument('--similarity_check', '-s', default=['नेपाल', 'Nepal'], metavar='STR', help='Similarity check word')
