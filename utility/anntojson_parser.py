@@ -1,3 +1,14 @@
+'''
+	Converts the .ann file into json format
+	Author: Sandesh Timilsina
+	Date: 02/06/2018
+
+	How to run:
+	- change the input_dir in the main function to give your directory 
+	  which contains a list of channels
+	python parser_new.py 
+'''
+
 import os
 import argparse
 import pandas as pd
@@ -43,27 +54,32 @@ def parser(df):
             ner_term = row['End'][-2:]
             entity_row,entity_idx = df[df['Term']==ner_term], df.index[df['Term']==ner_term].tolist()
             
-            if not df.loc[entity_idx[0],'visited']:
+            if not entity_row.empty and not df.loc[entity_idx[0],'visited']:
                 df.loc[entity_idx[0],'visited']=True
 
             if len(entity_row)>=1:
-                res['ent'] = entity_row['Keyword'].item()
-                res['ent_from'] = int(entity_row['Start'].item()) 
-                res['ent_to'] = int(entity_row['End'].item())
-                res['ent_cat'] = entity_row['Aspect'].item()
-#                 res[:2] = entity_row['Keyword'].item(),entity_row['Aspect'].item()
+                res['entity'] = entity_row['Keyword'].item()
+                res['entity_from'] = int(entity_row['Start'].item()) 
+                res['entity_to'] = int(entity_row['End'].item())
+                res['entity_cat'] = entity_row['Aspect'].item()
 
             aspect_row, aspect_idx = df[df['Term']==aspect_term], df.index[df['Term']==aspect_term].tolist()
             strength_row, strength_idx = df[df['Start']==aspect_term], df.index[df['Start']==aspect_term].tolist()
+            
+            if not aspect_row.empty:
+                df.loc[aspect_idx[0],'visited']=True
+                
+            if not strength_row.empty:
+                df.loc[strength_idx[0],'visited']=True
 
-            df.loc[aspect_idx[0],'visited']=True
-            df.loc[strength_idx[0],'visited']=True
             if len(aspect_row)>=1:
-                res['asp'] = aspect_row['Keyword'].item()
-                res['asp_from'] = int(aspect_row['Start'].item())
-                res['asp_to'] = int(aspect_row['End'].item())
-                res['asp_cat'] = aspect_row['Aspect'].item()
-                res['strength'] = strength_row['End'].item()
+                res['aspect'] = aspect_row['Keyword'].item()
+                res['aspect_from'] = int(aspect_row['Start'].item())
+                res['aspect_to'] = int(aspect_row['End'].item())
+                res['aspect_cat'] = aspect_row['Aspect'].item()
+                if not strength_row.empty:
+                    strength_row = [item for item in strength_row['End'] if item is not 'YES']
+                    res['strength'] = strength_row[0]
             output.append(res)
 
     unvisted_df = df[df['visited']==False]
@@ -73,10 +89,10 @@ def parser(df):
             res = {}
             asp = row['Aspect']
             if asp in NER_CATEGORIES:
-                res['ent'] = row['Keyword']
-                res['ent_from'] = int(row['Start']) 
-                res['ent_to'] = int(row['End'])
-                res['ent_cat'] = row['Aspect']
+                res['entity'] = row['Keyword']
+                res['entity_from'] = int(row['Start']) 
+                res['entity_to'] = int(row['End'])
+                res['entity_cat'] = row['Aspect']
 
 
             elif asp in ASPECT_CATEGORIES:
@@ -86,17 +102,17 @@ def parser(df):
                     strength_idx = df.index[df['Start']==aspect_term].tolist()
                     df.loc[strength_idx[0],'visited']= True
                     strength_row = [item for item in strength_row['End'] if item is not 'YES']
-                    res['asp'] = row['Keyword']
-                    res['asp_from'] = int(row['Start'])
-                    res['asp_to'] = int(row['End'])
-                    res['asp_cat'] = row['Aspect']
+                    res['aspect'] = row['Keyword']
+                    res['aspect_from'] = int(row['Start'])
+                    res['aspect_to'] = int(row['End'])
+                    res['aspect_cat'] = row['Aspect']
                     res['strength'] = strength_row[0]
 
                 else:
-                    res['asp'] = row['Keyword']
-                    res['asp_from'] = int(row['Start'])
-                    res['asp_to'] = int(row['End'])
-                    res['asp_cat'] = row['Aspect']
+                    res['aspect'] = row['Keyword']
+                    res['aspect_from'] = int(row['Start'])
+                    res['aspect_to'] = int(row['End'])
+                    res['aspect_cat'] = row['Aspect']
 
             output.append(res)
     return output
@@ -130,24 +146,24 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
             if targeted_list[j].get('asp_from',0)!=0 and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
                 status[j] = True
                 if i>0:
-                    targeted_list[j]['asp_from'] -= new_lines[i]+i 
-                    targeted_list[j]['asp_to'] -= new_lines[i]+i
+                    targeted_list[j]['aspect_from'] -= new_lines[i]+i 
+                    targeted_list[j]['aspect_to'] -= new_lines[i]+i
                     
-                if 'ent_from' in targeted_list[j]:
-                    targeted_list[j]['ent_from'] -= new_lines[i]+i
-                    targeted_list[j]['ent_to'] -= new_lines[i]+i
+                if 'entity_from' in targeted_list[j]:
+                    targeted_list[j]['entity_from'] -= new_lines[i]+i
+                    targeted_list[j]['entity_to'] -= new_lines[i]+i
                     
                 result_entry.get('tags').append(targeted_list[j])
                 
-            elif targeted_list[j].get('ent_from',0)!=0 and targeted_list[j]['ent_from'] <= new_lines[i+1] and not status[j]:
+            elif targeted_list[j].get('entity_from',0)!=0 and targeted_list[j]['entity_from'] <= new_lines[i+1] and not status[j]:
                 status[j] = True
                 if i>0:
-                    targeted_list[j]['ent_from'] -= new_lines[i]+i
-                    targeted_list[j]['ent_to'] -= new_lines[i]+i
+                    targeted_list[j]['entity_from'] -= new_lines[i]+i
+                    targeted_list[j]['entity_to'] -= new_lines[i]+i
                 
-                if 'asp_from' in targeted_list[j]:
-                    targeted_list[j]['asp_from'] -= new_lines[i]+i 
-                    targeted_list[j]['asp_to'] -= new_lines[i]+i
+                if 'aspect_from' in targeted_list[j]:
+                    targeted_list[j]['aspect_from'] -= new_lines[i]+i 
+                    targeted_list[j]['aspect_to'] -= new_lines[i]+i
                     
                 result_entry.get('tags').append(targeted_list[j])
         
@@ -157,10 +173,9 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
 
 def get_video_detail(inp_dir):
     split_data = inp_dir.rsplit('/', 3)
-    return split_data[1],split_data[2]
+    return split_data[2],split_data[3]
     
-def main():
-    input_dir = '/home/sandesh/Desktop/brat/data/nepali_data/Avenues_Khabar/0S8tX4eRa6M/'
+def process_single_video(input_dir):
     data = []
     for file in os.listdir(input_dir):
         f = os.path.join(input_dir,file)
@@ -181,4 +196,28 @@ def main():
             else:
                 content = read_textfile_asstring(f)
                 data = split_multicomments(input_dir, file, targated_list, text, content, data)
-    printdict(data)
+    return data
+
+def json_dump(input_dir, channel, data):
+    path = os.path.join(input_dir, channel+'.json')
+    with open(path,'w') as json_file:
+        json.dump(data, json_file)
+    
+def main():
+    input_dir = '/home/sandesh/Desktop/brat/data/nepsa'
+    for channel in os.listdir(input_dir):
+        final_json_data = []
+        json_data = []
+        input_path = os.path.join(input_dir, channel)
+        
+        for file in os.listdir(input_path):
+            vid_path = os.path.join(input_dir,channel,file)
+            data = process_single_video(vid_path)
+            json_data.extend(data)
+            final_json_data.extend(data)
+        json_dump(input_dir,channel, json_data)    
+
+    json_dump(input_dir,'all_channels', final_json_data)
+            
+                
+main()
