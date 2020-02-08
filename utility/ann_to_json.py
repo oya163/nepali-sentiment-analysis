@@ -1,7 +1,7 @@
 '''
 	Converts the .ann file into json format
 	Author: Sandesh Timilsina
-	Date: 02/06/2019
+	Date: 02/06/2020
 
 	How to run:
 	- change the input_dir in the main function to give your directory 
