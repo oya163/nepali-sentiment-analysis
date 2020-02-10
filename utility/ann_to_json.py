@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 import json
 
+count = 0
 NER_CATEGORIES = ['PER','ORG','LOC','EVENT','DATE','NUM','MISC']
 ASPECT_CATEGORIES = ['GENERAL', 'PROFANITY', 'VIOLENCE','SARCASM','FEEDBACK','OUTOFSCOPE']
 
@@ -58,10 +59,10 @@ def parser(df):
                 df.loc[entity_idx[0],'visited']=True
 
             if len(entity_row)>=1:
-                res['entity'] = entity_row['Keyword'].item()
-                res['entity_from'] = int(entity_row['Start'].item()) 
-                res['entity_to'] = int(entity_row['End'].item())
-                res['entity_cat'] = entity_row['Aspect'].item()
+                res['entity'] = entity_row['Keyword'].values.item()
+                res['entity_from'] = int(entity_row['Start'].values.item()) 
+                res['entity_to'] = int(entity_row['End'].values.item())
+                res['entity_cat'] = entity_row['Aspect'].values.item()
 
             aspect_row, aspect_idx = df[df['Term']==aspect_term], df.index[df['Term']==aspect_term].tolist()
             strength_row, strength_idx = df[df['Start']==aspect_term], df.index[df['Start']==aspect_term].tolist()
@@ -73,10 +74,10 @@ def parser(df):
                 df.loc[strength_idx[0],'visited']=True
 
             if len(aspect_row)>=1:
-                res['aspect'] = aspect_row['Keyword'].item()
-                res['aspect_from'] = int(aspect_row['Start'].item())
-                res['aspect_to'] = int(aspect_row['End'].item())
-                res['aspect_cat'] = aspect_row['Aspect'].item()
+                res['aspect'] = aspect_row['Keyword'].values.item()
+                res['aspect_from'] = int(aspect_row['Start'].values.item())
+                res['aspect_to'] = int(aspect_row['End'].values.item())
+                res['aspect_cat'] = aspect_row['Aspect'].values.item()
                 if not strength_row.empty:
                     strength_row = [item for item in strength_row['End'] if item is not 'YES']
                     res['strength'] = strength_row[0]
@@ -137,7 +138,7 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
         channel, video_id = get_video_detail(input_dir)
         result_entry = {'channel' : channel,
                         'video_id' : video_id,
-                        'comment_id': get_filename(file)+'##'+str(i+1),
+                        'comment_id': get_filename(file)+'__'+str(i+1),
                         'comment':text[i].strip(),
                         'tags':[]}
 
@@ -152,7 +153,8 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
                 if 'entity_from' in targeted_list[j]:
                     targeted_list[j]['entity_from'] -= new_lines[i]+i
                     targeted_list[j]['entity_to'] -= new_lines[i]+i
-                    
+                
+                print()    
                 result_entry.get('tags').append(targeted_list[j])
                 
             elif targeted_list[j].get('entity_from',0)!=0 and targeted_list[j]['entity_from'] <= new_lines[i+1] and not status[j]:
@@ -166,8 +168,6 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
                     targeted_list[j]['aspect_to'] -= new_lines[i]+i
                     
                 result_entry.get('tags').append(targeted_list[j])
-        
-#         result_entry.get('tags').append(targeted_list[j])
         data.append(result_entry)
     return data
 
@@ -205,19 +205,21 @@ def json_dump(input_dir, channel, data):
     
 def main():
     input_dir = '/home/sandesh/Desktop/brat/data/nepsa'
+    final_json_data = []
     for channel in os.listdir(input_dir):
-        final_json_data = []
-        json_data = []
-        input_path = os.path.join(input_dir, channel)
-        
-        for file in os.listdir(input_path):
-            vid_path = os.path.join(input_dir,channel,file)
-            data = process_single_video(vid_path)
-            json_data.extend(data)
-            final_json_data.extend(data)
-        json_dump(input_dir,channel, json_data)    
+    	if channel.endswith('.json'):
+    		continue
 
+    	json_data = []
+    	input_path = os.path.join(input_dir, channel)
+    	for file in os.listdir(input_path):
+    		vid_path = os.path.join(input_dir,channel,file)
+    		data = process_single_video(vid_path)
+    		json_data.extend(data)
+    		final_json_data.extend(data)
+    	json_dump(input_dir,channel, json_data)
+    	print(channel, len(json_data))
     json_dump(input_dir,'all_channels', final_json_data)
-            
+    print("Total", len(final_json_data))
                 
 main()

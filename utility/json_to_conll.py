@@ -62,11 +62,12 @@ def text_to_conll(data, file_path):
         count+=1
         df = pd.DataFrame()
         comment = item['comment']
+        print(item['channel'], item['video_id'], item['comment_id'])
         for word in comment.split():
             df = df.append(pd.Series([word, 'O']), ignore_index=True)
         final_df = re_label(comment, item, df)
         final_df = final_df.append(pd.Series(["",""]), ignore_index=True)
-        output_file = file_path.split('.')[0]+'.conll'
+        output_file = file_path.rpartition('.')[0]+'.conll'
         final_df.to_csv(output_file, header=None, index=None, sep='\t', mode='a')
     print('Done! ',count,' comments converted to conll format')
 
