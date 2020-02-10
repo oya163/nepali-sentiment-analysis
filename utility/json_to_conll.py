@@ -1,7 +1,7 @@
 '''
 	Converts the .json file to .conll format
 	Author: Sandesh Timilsina
-	Date: 02/07/2019
+	Date: 02/07/2020
 	
 	How to run:
 	- 
