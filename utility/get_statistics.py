@@ -29,15 +29,15 @@ def main():
 		reader = csv.reader(in_file, delimiter='\t')
 		for row in reader:
 			if row:
-				if row[0] not in entities:
-					entities[row[0]] = 1
+				if row[-1] not in entities:
+					entities[row[-1]] = 1
 				else:
-					entities[row[0]] += 1
+					entities[row[-1]] += 1
                     
-				if row[0][2:] not in high_entities:
-					high_entities[row[0][2:]] = 1
+				if row[-1][2:] not in high_entities:
+					high_entities[row[-1][2:]] = 1
 				else:
-					high_entities[row[0][2:]] += 1                    
+					high_entities[row[-1][2:]] += 1                    
 			else:
 				sent_counter += 1
 
