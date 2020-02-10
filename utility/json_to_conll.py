@@ -8,6 +8,7 @@
 '''
 
 import os
+import sys
 import argparse
 import pandas as pd
 import json
@@ -51,7 +52,7 @@ def re_label(comment, item, df):
     return df
 
 
-def text_to_conll(data):
+def text_to_conll(data, file_path):
     df = None
     final_df = pd.DataFrame()
     count=0
@@ -63,10 +64,30 @@ def text_to_conll(data):
             df = df.append(pd.Series([word, 'O']), ignore_index=True)
         final_df = re_label(comment, item, df)
         final_df = final_df.append(pd.Series(["",""]), ignore_index=True)
-        final_df.to_csv('/home/sandesh/Desktop/sand.conll', header=None, index=None, sep='\t', mode='a')
+        output_file = file_path.split('.')[0]+'.conll'
+        final_df.to_csv(output_file, header=None, index=None, sep='\t', mode='a')
     print('Done! ',count,' comments converted to conll format')
+
 
 def json_to_conll(file_path):
     data = read_jsonfile(file_path)
-    text_to_conll(data)
+    text_to_conll(data, file_path)
 
+
+def main(argv):
+    parser = argparse.ArgumentParser(add_help=True, description=('Json to Conll converter'))
+    parser.add_argument('-file', default='../../data/nepsa/al_channels.json', help='Input json file')
+    
+    args = parser.parse_args(argv)
+    input_file = args.file
+    
+    if not os.path.exists(input_file) or not input_file.endswith(".json"):
+        raise ValueError('Invalid Input Folder')
+
+    json_to_conll(input_file)    
+    print(' Successfully completed')
+        
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+    
