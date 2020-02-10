@@ -66,10 +66,20 @@ def text_to_conll(data, file_path):
         for word in comment.split():
             df = df.append(pd.Series([word, 'O']), ignore_index=True)
         final_df = re_label(comment, item, df)
-        final_df = final_df.append(pd.Series(["",""]), ignore_index=True)
+        final_df = final_df.append(pd.Series([None, None]), ignore_index=True)
         output_file = file_path.rpartition('.')[0]+'.conll'
-        final_df.to_csv(output_file, header=None, index=None, sep='\t', mode='a')
+        write_file(output_file, final_df)
+        # final_df.to_csv(output_file, header=None, index=None, sep='\t', mode='a')
     print('Done! ',count,' comments converted to conll format')
+
+
+def write_file(filename, df):
+    with open(filename, 'a') as f:
+        for idx, row in df.iterrows():
+            if row[0]==None or row[1]==None:
+                f.write("\n")
+                continue
+            f.write(row[0]+"\t"+row[1]+"\n")
 
 
 def json_to_conll(file_path):
