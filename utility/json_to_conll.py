@@ -1,10 +1,12 @@
 '''
 	Converts the .json file to .conll format
 	Author: Sandesh Timilsina
-	Date: 02/07/2020
+	Date: 02/07/2019
 	
 	How to run:
-	- 
+	- Pass the all_channels.json file as command line argument.
+    Example:
+        >> python json_to_conll.py -file ../../brat/data/nepsa/all_channels.json
 '''
 
 import os
