@@ -6,8 +6,8 @@
 	How to run:
 	- change the input_dir in the main function to give your directory 
 	  which contains a list of channels
-	python parser_new.py   (default directory is ../../brat/data/nepsa)
-	python parser_new.py -directory <dir_path>
+	python ann_to_json.py   (default directory is ../../brat/data/nepsa)
+	python ann_to_json.py -directory <dir_path>
 
 '''
 
