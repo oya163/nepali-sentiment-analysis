@@ -1,23 +1,28 @@
 '''
 	Converts the .ann file into json format
 	Author: Sandesh Timilsina
-	Date: 02/06/2018
+	Date: 02/06/2020
 
 	How to run:
 	- change the input_dir in the main function to give your directory 
 	  which contains a list of channels
-	python parser_new.py 
+	python parser_new.py   (default directory is ../../brat/data/nepsa)
+	python parser_new.py -directory <dir_path>
+
 '''
 
 import os
+import sys
 import argparse
 import pandas as pd
 import numpy as np
 import json
 
+count = 0
 NER_CATEGORIES = ['PER','ORG','LOC','EVENT','DATE','NUM','MISC']
 ASPECT_CATEGORIES = ['GENERAL', 'PROFANITY', 'VIOLENCE','SARCASM','FEEDBACK','OUTOFSCOPE']
 
+''' convert file to dataframe'''
 def file_to_df(file):
     df = pd.read_csv(file, sep = "\t", header = None)
     df[['Aspect','Start','End']] = df[1].str.split(' ', expand=True)
@@ -26,21 +31,23 @@ def file_to_df(file):
     df = df.drop([1,2],axis=1)
     return df
 
+''' read the textfile'''
 def read_textfile(file):
-    text_file = file.split('.')[0]+'.txt'
+    text_file = file.rpartition('.')[0]+'.txt'
     f = open(text_file, 'r')
     text = f.readlines()
     f.close()
     return text
 
+''' read the textfile and return the content as a string'''
 def read_textfile_asstring(file):
-    text_file = file.split('.')[0]+'.txt'
-    
+    text_file = file.rpartition('.')[0]+'.txt'
     content = ""
     with open(text_file) as f:
         content = f.read()
     return content
 
+''' parse the .ann file and get all the details'''
 def parser(df):
     output= []
     df['visited']= False
@@ -58,10 +65,10 @@ def parser(df):
                 df.loc[entity_idx[0],'visited']=True
 
             if len(entity_row)>=1:
-                res['entity'] = entity_row['Keyword'].item()
-                res['entity_from'] = int(entity_row['Start'].item()) 
-                res['entity_to'] = int(entity_row['End'].item())
-                res['entity_cat'] = entity_row['Aspect'].item()
+                res['entity'] = entity_row['Keyword'].values.item()
+                res['entity_from'] = int(entity_row['Start'].values.item()) 
+                res['entity_to'] = int(entity_row['End'].values.item())
+                res['entity_cat'] = entity_row['Aspect'].values.item()
 
             aspect_row, aspect_idx = df[df['Term']==aspect_term], df.index[df['Term']==aspect_term].tolist()
             strength_row, strength_idx = df[df['Start']==aspect_term], df.index[df['Start']==aspect_term].tolist()
@@ -73,10 +80,10 @@ def parser(df):
                 df.loc[strength_idx[0],'visited']=True
 
             if len(aspect_row)>=1:
-                res['aspect'] = aspect_row['Keyword'].item()
-                res['aspect_from'] = int(aspect_row['Start'].item())
-                res['aspect_to'] = int(aspect_row['End'].item())
-                res['aspect_cat'] = aspect_row['Aspect'].item()
+                res['aspect'] = aspect_row['Keyword'].values.item()
+                res['aspect_from'] = int(aspect_row['Start'].values.item())
+                res['aspect_to'] = int(aspect_row['End'].values.item())
+                res['aspect_cat'] = aspect_row['Aspect'].values.item()
                 if not strength_row.empty:
                     strength_row = [item for item in strength_row['End'] if item is not 'YES']
                     res['strength'] = strength_row[0]
@@ -119,7 +126,8 @@ def parser(df):
 
 def printdict(dict_data):
     print(json.dumps(dict_data,indent=4, ensure_ascii=False))
-    
+
+''' get all the index where new sentence starts in a multiline comment'''    
 def get_splitpoint(text_list, all_text):
     out = [-1]*len(text_list)
     for i in range(len(text_list)):
@@ -129,6 +137,7 @@ def get_splitpoint(text_list, all_text):
 def get_filename(file):
     return file.split('.')[0]
 
+'''  split a multiline comment into different single line comments'''
 def split_multicomments(input_dir, file, targeted_list, text, content, data):
     new_lines = get_splitpoint(text,content)
     new_lines.append(len(content)*2)
@@ -137,7 +146,7 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
         channel, video_id = get_video_detail(input_dir)
         result_entry = {'channel' : channel,
                         'video_id' : video_id,
-                        'comment_id': get_filename(file)+'##'+str(i+1),
+                        'comment_id': get_filename(file)+'__'+str(i+1),
                         'comment':text[i].strip(),
                         'tags':[]}
 
@@ -152,7 +161,8 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
                 if 'entity_from' in targeted_list[j]:
                     targeted_list[j]['entity_from'] -= new_lines[i]+i
                     targeted_list[j]['entity_to'] -= new_lines[i]+i
-                    
+                
+                print()    
                 result_entry.get('tags').append(targeted_list[j])
                 
             elif targeted_list[j].get('entity_from',0)!=0 and targeted_list[j]['entity_from'] <= new_lines[i+1] and not status[j]:
@@ -166,15 +176,15 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
                     targeted_list[j]['aspect_to'] -= new_lines[i]+i
                     
                 result_entry.get('tags').append(targeted_list[j])
-        
-#         result_entry.get('tags').append(targeted_list[j])
         data.append(result_entry)
     return data
 
+''' get channel name and video_id'''
 def get_video_detail(inp_dir):
     split_data = inp_dir.rsplit('/', 3)
     return split_data[2],split_data[3]
     
+''' processing for each video folder'''    
 def process_single_video(input_dir):
     data = []
     for file in os.listdir(input_dir):
@@ -203,21 +213,29 @@ def json_dump(input_dir, channel, data):
     with open(path,'w') as json_file:
         json.dump(data, json_file)
     
-def main():
-    input_dir = '/home/sandesh/Desktop/brat/data/nepsa'
-    for channel in os.listdir(input_dir):
-        final_json_data = []
-        json_data = []
-        input_path = os.path.join(input_dir, channel)
-        
-        for file in os.listdir(input_path):
-            vid_path = os.path.join(input_dir,channel,file)
-            data = process_single_video(vid_path)
-            json_data.extend(data)
-            final_json_data.extend(data)
-        json_dump(input_dir,channel, json_data)    
+def main(argv):
+	parser = argparse.ArgumentParser(add_help=True, description=('.ann to json file convertor'))
+	parser.add_argument('-directory', default='../../brat/data/nepsa', help='Input directory')
+	
+	# input_dir = '/home/sandesh/Desktop/brat/data/nepsa'
+	args = parser.parse_args(argv)
+	input_dir = args.directory
+	final_json_data = []
+	for channel in os.listdir(input_dir):
+		if channel.endswith('.json'):
+			continue
 
-    json_dump(input_dir,'all_channels', final_json_data)
-            
+		json_data = []
+		input_path = os.path.join(input_dir, channel)
+		for file in os.listdir(input_path):
+			vid_path = os.path.join(input_dir,channel,file)
+			data = process_single_video(vid_path)
+			json_data.extend(data)
+			final_json_data.extend(data)
+		json_dump(input_dir,channel, json_data)
+		print(channel, len(json_data))
+	json_dump(input_dir,'all_channels', final_json_data)
+	print("Total", len(final_json_data))
                 
-main()
+if __name__ == "__main__":
+    main(sys.argv[1:])
