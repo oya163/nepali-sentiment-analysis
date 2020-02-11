@@ -27,7 +27,7 @@ import subprocess
 import shutil
 
 parser = argparse.ArgumentParser(add_help=True, description=('CoNLL to Final Dataset'))
-parser.add_argument('--input_dir', '-idir', default='../brat/data/nepsa/', metavar='PATH', help='Input path directory')
+parser.add_argument('--input_dir', '-idir', default='../brat/data/annotated/', metavar='PATH', help='Input path directory')
 parser.add_argument('--output_dir', '-odir', default='./data/dataset', metavar='PATH', help='Output path directory')
 parser.add_argument('--unicode', '-u', default='utf8', choices=['utf8','utf16'], metavar='UTF', help='Encoding format')
 
