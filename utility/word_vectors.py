@@ -9,6 +9,7 @@
 '''
 
 import os
+import sys
 import argparse
 from gensim.models import Word2Vec, KeyedVectors, FastText
 
@@ -19,6 +20,7 @@ parser.add_argument('--embeddings', '-e', default='fasttext', choices=['word2vec
 parser.add_argument('--embed_type', '-t', default=0, choices=[0, 1], metavar='INT', help='Embeddings Type 0: skip_gram, 1: cbow, default: 0}')
 parser.add_argument('--eval_mode', '-m', default=False, action="store_true", help='Evaluation mode')
 parser.add_argument('--similarity_check', '-s', default=['नेपाल',], metavar='STR', help='Similarity check word')
+parser.add_argument('--emb_path', '-p', default=None, metavar='PATH', help='Embeddings path directory for similarity check')
 
 
 args = parser.parse_args()
@@ -30,6 +32,21 @@ def main():
     embeddings = args.embeddings
     embed_type = args.embed_type
     similarity_check = args.similarity_check
+
+
+    if args.emb_path:
+        # Eval mode mode
+        model_check = KeyedVectors.load_word2vec_format(args.emb_path, binary=False)
+    
+        print("Checking word similarity from: ", embeddings)
+        for every in similarity_check:
+            print("Most similar words for ", every)
+            print(model_check.most_similar(every, topn=10))
+
+        print("Exiting program")
+        sys.exit(00)
+    
+    
     
     if embeddings == 'word2vec':
         output_dir = os.path.join(output_dir, 'nep2vec')
