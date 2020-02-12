@@ -47,10 +47,11 @@ def re_label(comment, item, df):
             aspect_cat = tag['aspect_cat']
             begin = True
             for item in aspect:
+                begin = True
                 idx = df[df[0]==item].index.tolist()
                 for i in range(len(idx)):
                     if idx[i]>=0 and df.loc[idx[i], 1]=='O':
-                        if idx[i]>=0:
+                        if begin:
                             df.loc[idx[i], 1]= 'B-'+aspect_cat
                             begin = False
                         else:
