@@ -32,10 +32,9 @@ def re_label(comment, item, df):
             entity_cat = tag['entity_cat']
             begin = True
             for item in entity:
-                begin=True
                 idx = df[df[0]==item].index.tolist()
                 for i in range(len(idx)):
-                    if idx[i]>=0 and df.loc[idx[i], 1]=='O':
+                    if df.loc[idx[i], 1]=='O':
                         if begin:
                             df.loc[idx[i], 1]= 'B-'+entity_cat
                             begin= False
@@ -47,10 +46,9 @@ def re_label(comment, item, df):
             aspect_cat = tag['aspect_cat']
             begin = True
             for item in aspect:
-                begin = True
                 idx = df[df[0]==item].index.tolist()
                 for i in range(len(idx)):
-                    if idx[i]>=0 and df.loc[idx[i], 1]=='O':
+                    if df.loc[idx[i], 1]=='O':
                         if begin:
                             df.loc[idx[i], 1]= 'B-'+aspect_cat
                             begin = False
