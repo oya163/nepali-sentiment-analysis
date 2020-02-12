@@ -24,7 +24,11 @@ def re_label(comment, item, df):
     tags = item['tags']
     for tag in tags:
         if 'entity' in tag:
-            entity = tag['entity'].split()
+            entity = None
+            if str(tag['entity']).isdigit():
+                entity = tag['entity']
+            else:
+                entity = tag['entity'].split()
             entity_cat = tag['entity_cat']
             begin = True
             for item in entity:
