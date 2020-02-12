@@ -159,8 +159,9 @@ def write_df(df, fname, logger, use_pos=False):
                 for t1, t2, t3 in zip(text, pos, tag):
                     f.write(t1+'\t'+t2+'\t'+t3+'\n')                
             else:
-                for t1, t2 in zip(text, tag):
-                    f.write(t1+'\t'+t2+'\n')
+                if not set(tag).intersection(set(['B-FEEDBACK','I-FEEDBACK','B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE'])):
+                    for t1, t2 in zip(text, tag):
+                        f.write(t1+'\t'+t2+'\n')
             f.write('\n')
         logger.info('Created: {}'.format(fname))
         f.close()
@@ -200,12 +201,12 @@ def split_train_test(source_path, save_path, logger, pos):
     else:
         df = df_txt.join(df_tag).sample(frac=1).reset_index(drop=True)
     
-    # To split into train and test 70/30
-    mask = np.random.rand(len(df)) < 0.7
+    # To split into train and intermediate 80/20
+    mask = np.random.rand(len(df)) < 0.8
     train_df = df[mask]
     intermediate_df = df[~mask]
     
-    # To split intermediat into 50/50
+    # To split intermediate into 10/10 into test and dev
     val_mask = np.random.rand(len(intermediate_df)) < 0.5
     test_df = intermediate_df[val_mask]
     val_df = intermediate_df[~val_mask]
