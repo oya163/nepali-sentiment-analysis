@@ -15,8 +15,8 @@ set -f
 KFOLD=$1
 DIRNAME=$2
 SCRIPT=${NEPALI_NER}/utils/splitter.py
-DATA_DIR=${NEPALI_NER}/data/umbc/stemmed
-DATA_FILE=${DATA_DIR}/total.txt
+DATA_DIR=${NEPALI_NER}/data/dataset
+DATA_FILE=${DATA_DIR}/total_channels.conll
 OUT_DIR=${DATA_DIR}/$DIRNAME
 
 
