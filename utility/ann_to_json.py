@@ -152,7 +152,7 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
 
 #         result_entry['comment'] = text[i].strip()
         for j in range(0,len(targeted_list)):
-            if targeted_list[j].get('asp_from',0)!=0 and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
+            if targeted_list[j].get('asp_from',None)!=None and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
                 status[j] = True
                 if i>0:
                     targeted_list[j]['aspect_from'] -= new_lines[i]+i 
@@ -165,7 +165,7 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
                 print()    
                 result_entry.get('tags').append(targeted_list[j])
                 
-            elif targeted_list[j].get('entity_from',0)!=0 and targeted_list[j]['entity_from'] <= new_lines[i+1] and not status[j]:
+            elif targeted_list[j].get('entity_from',None)!=None and targeted_list[j]['entity_from'] <= new_lines[i+1] and not status[j]:
                 status[j] = True
                 if i>0:
                     targeted_list[j]['entity_from'] -= new_lines[i]+i
@@ -222,9 +222,9 @@ def main(argv):
 	input_dir = args.directory
 	final_json_data = []
 	for channel in os.listdir(input_dir):
-		if channel.endswith('.json'):
+		if channel.endswith('.json') or channel.endswith('.stats_cache'):
 			continue
-
+		print(f'channel : {channel} started')
 		json_data = []
 		input_path = os.path.join(input_dir, channel)
 		for file in os.listdir(input_path):
