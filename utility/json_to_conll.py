@@ -24,36 +24,40 @@ def re_label(comment, item, df):
     tags = item['tags']
     for tag in tags:
         if 'entity' in tag:
-            entity = None
-            if str(tag['entity']).isdigit():
-                entity = tag['entity']
-            else:
-                entity = tag['entity'].split()
+            entity = tag['entity']
+            entity_from = tag['entity_from']
+            entity_to = tag['entity_to']
             entity_cat = tag['entity_cat']
+            entity_ls = entity.split()
             begin = True
-            for item in entity:
+            for item in entity_ls:
                 idx = df[df[0]==item].index.tolist()
                 for i in range(len(idx)):
-                    if df.loc[idx[i], 1]=='O':
+                    if df.loc[idx[i], 3]=='O' and df.loc[idx[i], 1]>=entity_from and \
+                        df.loc[idx[i], 2]<=entity_to:
                         if begin:
-                            df.loc[idx[i], 1]= 'B-'+entity_cat
+                            df.loc[idx[i], 3]= 'B-'+entity_cat
                             begin= False
                         else:
-                            df.loc[idx[i], 1]= 'I-'+entity_cat
+                            df.loc[idx[i], 3]= 'I-'+entity_cat
                         
         if 'aspect' in tag:
-            aspect = tag['aspect'].split()
+            aspect = tag['aspect']
+            aspect_from = tag['aspect_from']
+            aspect_to = tag['aspect_to']
             aspect_cat = tag['aspect_cat']
+            aspect_ls = aspect.split()
             begin = True
-            for item in aspect:
+            for item in aspect_ls:
                 idx = df[df[0]==item].index.tolist()
                 for i in range(len(idx)):
-                    if df.loc[idx[i], 1]=='O':
+                    if df.loc[idx[i], 3]=='O' and df.loc[idx[i], 1]>=aspect_from and \
+                        df.loc[idx[i], 2]<=aspect_to:
                         if begin:
-                            df.loc[idx[i], 1]= 'B-'+aspect_cat
+                            df.loc[idx[i], 3]= 'B-'+aspect_cat
                             begin = False
                         else:
-                            df.loc[idx[i], 1]= 'I-'+aspect_cat
+                            df.loc[idx[i], 3]= 'I-'+aspect_cat
     return df
 
 
@@ -66,8 +70,13 @@ def text_to_conll(data, file_path):
         df = pd.DataFrame()
         comment = item['comment']
         print(item['channel'], item['video_id'], item['comment_id'])
+        begin = 0
+        end = 0
         for word in comment.split():
-            df = df.append(pd.Series([word, 'O']), ignore_index=True)
+            end = begin+len(word)
+            df = df.append(pd.Series([word,begin,end,'O']), ignore_index=True)
+            end+=1
+            begin = end
         final_df = re_label(comment, item, df)
         final_df = final_df.append(pd.Series([""]), ignore_index=True)
         output_file = file_path.rpartition('.')[0]+'.conll'
@@ -80,7 +89,7 @@ def write_file(filename, df):
     with open(filename, 'a') as f:
         for idx, row in df.iterrows():
             if not row.all()=="":
-                f.write(str(row[0])+"\t"+str(row[1])+"\n")
+                f.write(str(row[0])+"\t"+row[3]+"\n")
             else:
                 f.write("\n")
 
