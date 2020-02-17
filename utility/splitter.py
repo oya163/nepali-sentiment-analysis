@@ -159,9 +159,12 @@ def write_df(df, fname, logger, use_pos=False):
                 for t1, t2, t3 in zip(text, pos, tag):
                     f.write(t1+'\t'+t2+'\t'+t3+'\n')                
             else:
-                if not set(tag).intersection(set(['B-FEEDBACK','I-FEEDBACK','B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE'])):
-                    for t1, t2 in zip(text, tag):
-                        f.write(t1+'\t'+t2+'\n')
+                # Remove specific lines having these categories
+                if not set(tag).intersection(set(['B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE'])):
+                    # Remove if it contains only 'O'
+                    if list(set(tag)) != ['O']:
+                        for t1, t2 in zip(text, tag):
+                            f.write(t1+'\t'+t2+'\n')
             f.write('\n')
         logger.info('Created: {}'.format(fname))
         f.close()
@@ -261,7 +264,7 @@ def main(**args):
 if __name__=="__main__":
     parser = argparse.ArgumentParser("Dataset Splitter Argument Parser")
     parser.add_argument("-i", "--input_file", default="./data/dataset/total_channels.conll", metavar="PATH", help="Input file path")
-    parser.add_argument("-o", "--output_dir", default="./data/nepsa/", metavar="PATH", help="Output Directory")
+    parser.add_argument("-o", "--output_dir", default="../torchnlp/data/nepsa/", metavar="PATH", help="Output Directory")
     parser.add_argument("-p", "--pos", action='store_true', default=False, help="Use POS")
     parser.add_argument("-k", "--kfold", dest='kfold', type=int, default=1, metavar="INT", help="K-fold")
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
