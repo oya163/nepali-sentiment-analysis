@@ -30,11 +30,11 @@ def re_label(comment, item, df):
             entity_cat = tag['entity_cat']
             entity_ls = entity.split()
             begin = True
+
             for item in entity_ls:
                 idx = df[df[0]==item].index.tolist()
                 for i in range(len(idx)):
-                    if df.loc[idx[i], 3]=='O' and df.loc[idx[i], 1]>=entity_from and \
-                        df.loc[idx[i], 2]<=entity_to:
+                    if df.loc[idx[i], 3]=='O' and entity_from>=df.loc[idx[i], 1] and entity_from<=df.loc[idx[i]]:
                         if begin:
                             df.loc[idx[i], 3]= 'B-'+entity_cat
                             begin= False

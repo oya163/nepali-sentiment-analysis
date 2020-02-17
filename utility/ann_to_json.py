@@ -137,6 +137,13 @@ def get_splitpoint(text_list, all_text):
 def get_filename(file):
     return file.split('.')[0]
 
+''' used for index correction in multiline comments'''
+def check_negative(idx):
+    diff = 0
+    if idx<0:
+        diff = idx*-1
+    return diff
+
 '''  split a multiline comment into different single line comments'''
 def split_multicomments(input_dir, file, targeted_list, text, content, data):
     new_lines = get_splitpoint(text,content)
@@ -152,30 +159,39 @@ def split_multicomments(input_dir, file, targeted_list, text, content, data):
 
 #         result_entry['comment'] = text[i].strip()
         for j in range(0,len(targeted_list)):
-            if targeted_list[j].get('asp_from',None)!=None and targeted_list[j]['asp_from'] <= new_lines[i+1] and not status[j]:
-                status[j] = True
-                if i>0:
-                    targeted_list[j]['aspect_from'] -= new_lines[i]+i 
-                    targeted_list[j]['aspect_to'] -= new_lines[i]+i
-                    
-                if 'entity_from' in targeted_list[j]:
-                    targeted_list[j]['entity_from'] -= new_lines[i]+i
-                    targeted_list[j]['entity_to'] -= new_lines[i]+i
-                
-                print()    
-                result_entry.get('tags').append(targeted_list[j])
-                
-            elif targeted_list[j].get('entity_from',None)!=None and targeted_list[j]['entity_from'] <= new_lines[i+1] and not status[j]:
+            if not targeted_list[j].get('entity_from',None)==None and targeted_list[j]['entity_from'] < new_lines[i+1] and not status[j]:
                 status[j] = True
                 if i>0:
                     targeted_list[j]['entity_from'] -= new_lines[i]+i
-                    targeted_list[j]['entity_to'] -= new_lines[i]+i
-                
-                if 'aspect_from' in targeted_list[j]:
-                    targeted_list[j]['aspect_from'] -= new_lines[i]+i 
-                    targeted_list[j]['aspect_to'] -= new_lines[i]+i
+                    diff = check_negative(targeted_list[j]['entity_from'])
+                    targeted_list[j]['entity_from'] += diff
+                    targeted_list[j]['entity_to'] -= new_lines[i]+i-diff
+
+                    if 'aspect_from' in targeted_list[j]:
+	                    targeted_list[j]['aspect_from'] -= new_lines[i]+i
+	                    diff = check_negative(targeted_list[j]['aspect_from'])
+	                    targeted_list[j]['aspect_from'] += diff 
+	                    targeted_list[j]['aspect_to'] -= new_lines[i]+i-diff
                     
                 result_entry.get('tags').append(targeted_list[j])
+                
+            if not targeted_list[j].get('aspect_from',None)==None and targeted_list[j]['aspect_from'] < new_lines[i+1] and not status[j]:
+                status[j] = True
+                if i>0:
+                    targeted_list[j]['aspect_from'] -= new_lines[i]+i
+                    diff = check_negative(targeted_list[j]['aspect_from'])
+                    targeted_list[j]['aspect_from'] += diff 
+                    targeted_list[j]['aspect_to'] -= new_lines[i]+i-diff
+
+                    if 'entity_from' in targeted_list[j]:
+	                    targeted_list[j]['entity_from'] -= new_lines[i]+i
+	                    diff = check_negative(targeted_list[j]['entity_from'])
+	                    targeted_list[j]['entity_from'] += diff
+	                    targeted_list[j]['entity_to'] -= new_lines[i]+i-diff
+                    
+                result_entry.get('tags').append(targeted_list[j])
+                
+            
         data.append(result_entry)
     return data
 
