@@ -1,5 +1,7 @@
 # Nepali Sentiment Analysis
 
+With the increase in internet access and ease of writing comments in Nepali language, there is an urgency for fine-grained sentiment analysis for social media comments. There are a number of dataset benchmark of high-resource languages in specific domains like restaurant, hotels or electronic products but not on social-media domain in low-resource language like Nepali. In this paper, we present the targeted aspect-based sentiment analysis dataset in social media domain, setup a dataset benchmark and evaluate the efficiency using various machine learning models. The dataset comprises of code-mixed and code-switched comments extracted from Nepali YouTube videos.
+
 We are working on sentiment analysis on social media texts (Youtube comments) in Nepali language. As we can see from latest statistics, there is growing userbase in Facebook/Youtube compared to Twitter. We found out that lately lots of people are commenting in Youtube videos in Nepali language compared to Twitter. Plus, people are more likely to watch trending political development videos in Youtube compared to Twitter. Also, it is more convenient to scrap thousands of comments from a particular video in Youtube. Unfortunately, there is no any Nepali language analytics in Youtube comments. Therefore, our project focuses on sentiment analysis in Youtube comments written in Nepali language.
 
 
@@ -11,10 +13,9 @@ We are working on sentiment analysis on social media texts (Youtube comments) in
 
 ### Research roadmap
 
-- [ ] Dataset preparation
+- [X] Dataset collection
+- [X] Dataset annotation
 - [ ] Model comparison
-- [ ] Domain Adaptation
-- [ ] Multi-lingual training
 
 
 Folder Structure for Output:
