@@ -13,6 +13,7 @@ import os
 import sys
 import argparse
 import json
+import csv
 import pandas as pd
 
 def read_json_file(file):
@@ -41,7 +42,7 @@ def prepare_aspect_format(json_data):
 
 def write_df_to_file(df,output_file_path):
     print("Writing to file....")
-    df.to_csv(output_file_path, header=False, index=False)
+    df.to_csv(output_file_path, header=False, index=False, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
     print("Writing to file completed")
 
 def main(argv):
