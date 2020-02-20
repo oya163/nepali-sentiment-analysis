@@ -72,10 +72,12 @@ def text_tag_convert(input_file, logger, verbose=False):
                 else:
                     if len(sentence) > MAX_SEQ_LENGTH:
                         max_counter+=1
-                        logger.info("Length of longer sentence = {}".format(len(sentence)))
+                        if verbose:
+                            logger.info("Length of longer sentence = {}".format(len(sentence)))
                     else:
                         min_counter+=1
-                        logger.info("Length of shorter sentence = {}".format(len(sentence)))
+                        if verbose:
+                            logger.info("Length of shorter sentence = {}".format(len(sentence)))
 
                 sentence = []
                 tag = []                   
@@ -175,7 +177,49 @@ def split_train_test(source_path, save_path, logger, pos):
     logger.info("Length of test dataset: {}".format(len(test_df) - invalid_test_count))
     logger.info("Length of val dataset: {}".format(len(val_df) - invalid_val_count))
 
+'''
+    Partitions the given data into chunks
+    Create train/test file accordingly
+'''
+def split_train_test_csv(source_path, save_path, logger):
+#     sent_file = os.path.join(source_path, 'text_only.txt')
+    
+    logger.info("Saving path: {}".format(save_path))
+    
+#     if not os.path.exists(save_path):
+#         os.mkdir(save_path)
+        
+    train_fname = os.path.join(save_path,'train.txt')
+    test_fname = os.path.join(save_path, 'test.txt')
+    val_fname = os.path.join(save_path, 'val.txt')
+    
+    df_txt = pd.read_csv(source_path, delimiter='\n', encoding='utf-8', 
+                         skip_blank_lines=True, header=None, 
+                         quoting=csv.QUOTE_NONE, names=['TEXT'])
 
+    df = df_txt.sample(frac=1).reset_index(drop=True)
+    
+    # To split into train and intermediate 80/20
+    mask = np.random.rand(len(df)) < 0.8
+    train_df = df[mask]
+    intermediate_df = df[~mask]
+    
+    # To split intermediate into 10/10 into test and dev
+    val_mask = np.random.rand(len(intermediate_df)) < 0.5
+    test_df = intermediate_df[val_mask]
+    val_df = intermediate_df[~val_mask]
+   
+    
+    train_df.to_csv(train_fname, header=False, index=False, quoting=csv.QUOTE_NONE, quotechar="",  escapechar=" ", encoding='utf-8')
+    test_df.to_csv(test_fname, header=False, index=False, quoting=csv.QUOTE_NONE, quotechar="",  escapechar=" ", encoding='utf-8')
+    val_df.to_csv(val_fname, header=False, index=False, quoting=csv.QUOTE_NONE, quotechar="",  escapechar=" ", encoding='utf-8')
+
+    # Print stat
+    logger.info("Length of train dataset: {}".format(len(train_df)))
+    logger.info("Length of test dataset: {}".format(len(test_df)))
+    logger.info("Length of val dataset: {}".format(len(val_df)))
+
+    
 def split(input_file, save_path, verbose, logger, pos):
     sent_file, tag_file = text_tag_convert(input_file, logger, verbose)
     
@@ -206,7 +250,10 @@ def main(**args):
         final_path = os.path.join(save_path, str(i+1))
         if not os.path.exists(final_path):
             os.mkdir(final_path)
-        split(input_file, final_path, verbose, logger, pos)
+        if not pos:
+            split(input_file, final_path, verbose, logger, pos)
+        else:
+            split_train_test_csv(input_file, final_path, logger)
     
     
 if __name__=="__main__":
@@ -215,7 +262,7 @@ if __name__=="__main__":
     parser.add_argument("-o", "--output_dir", default="../torchnlp/data/nepsa/", metavar="PATH", help="Output Directory")
     parser.add_argument("-p", "--pos", action='store_true', default=False, help="Use POS")
     parser.add_argument("-k", "--kfold", dest='kfold', type=int, default=1, metavar="INT", help="K-fold")
-    parser.add_argument("-v", "--verbose", action='store_true', default=True, help="Print description")
+    parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
     parser.add_argument("-l", "--log_file", dest="log_file", type=str, metavar="PATH", default="./data/logs/data_log.txt",help="Log file")
 
     args = vars(parser.parse_args())
