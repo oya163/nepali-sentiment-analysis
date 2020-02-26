@@ -105,7 +105,7 @@ def text_tag_convert(input_file, logger, verbose=False):
 '''
     Function to write dataframe into files
 '''
-def write_df(df, fname, logger, use_pos=False):
+def write_df(df, fname, logger):
     invalid_counter = 0
     with open(fname, 'w', encoding='utf-8') as f:
         for i, r in df.iterrows():
@@ -134,7 +134,7 @@ def write_df(df, fname, logger, use_pos=False):
     Partitions the given data into chunks
     Create train/test file accordingly
 '''
-def split_train_test(source_path, save_path, logger, pos):
+def split_train_test(source_path, save_path, logger):
     sent_file = os.path.join(source_path, 'text_only.txt')
     tag_file = os.path.join(source_path, 'tag_only.txt')
     
@@ -168,9 +168,9 @@ def split_train_test(source_path, save_path, logger, pos):
     val_df = intermediate_df[~val_mask]
 
     # Write those train/test dataframes into files
-    invalid_train_count = write_df(train_df, train_fname, logger, pos)
-    invalid_test_count = write_df(test_df, test_fname, logger, pos)
-    invalid_val_count = write_df(val_df, val_fname, logger, pos)
+    invalid_train_count = write_df(train_df, train_fname, logger)
+    invalid_test_count = write_df(test_df, test_fname, logger)
+    invalid_val_count = write_df(val_df, val_fname, logger)
     
     # Print stat
     logger.info("Length of train dataset: {}".format(len(train_df) - invalid_train_count))
@@ -220,12 +220,12 @@ def split_train_test_csv(source_path, save_path, logger):
     logger.info("Length of val dataset: {}".format(len(val_df)))
 
     
-def split(input_file, save_path, verbose, logger, pos):
+def split(input_file, save_path, verbose, logger):
     sent_file, tag_file = text_tag_convert(input_file, logger, verbose)
     
     source_path = os.path.dirname(sent_file)
     logger.info("Source path: {}".format(source_path))
-    split_train_test(source_path, save_path, logger, pos)
+    split_train_test(source_path, save_path, logger)
 
         
 def main(**args):
@@ -233,7 +233,7 @@ def main(**args):
     save_path = args["output_dir"]
     verbose = args["verbose"]
     kfold = args["kfold"]
-    pos = args["pos"]
+    csv = args["csv"]
     log_file = args["log_file"]
     
     logger = utilities.get_logger(log_file)
@@ -250,8 +250,8 @@ def main(**args):
         final_path = os.path.join(save_path, str(i+1))
         if not os.path.exists(final_path):
             os.mkdir(final_path)
-        if not pos:
-            split(input_file, final_path, verbose, logger, pos)
+        if not csv:
+            split(input_file, final_path, verbose, logger)
         else:
             split_train_test_csv(input_file, final_path, logger)
     
@@ -260,7 +260,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser("Dataset Splitter Argument Parser")
     parser.add_argument("-i", "--input_file", default="./data/dataset/total.conll", metavar="PATH", help="Input file path")
     parser.add_argument("-o", "--output_dir", default="../torchnlp/data/nepsa/", metavar="PATH", help="Output Directory")
-    parser.add_argument("-p", "--pos", action='store_true', default=False, help="Use POS")
+    parser.add_argument("-c", "--csv", action='store_true', default=False, help="CSV file splitter")
     parser.add_argument("-k", "--kfold", dest='kfold', type=int, default=1, metavar="INT", help="K-fold")
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
     parser.add_argument("-l", "--log_file", dest="log_file", type=str, metavar="PATH", default="./data/logs/data_log.txt",help="Log file")
