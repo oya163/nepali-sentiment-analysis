@@ -10,13 +10,14 @@ import logging
 from configparser import ConfigParser
 
 class Configuration(ConfigParser):
-    def __init__(self, config_file, logger):
+    def __init__(self, config_file, logger, args):
         super().__init__()
         config = ConfigParser(allow_no_value=True)
         config.read(config_file)
         self._config = config
         self.config_file = config_file
         self.logger = logger
+        self.args = args
 
         self.logger.info("Configuration file loaded!!!")
 
@@ -32,7 +33,7 @@ class Configuration(ConfigParser):
     
     @property
     def root_path(self):
-        return self._config.get('DATA', 'root_path')    
+        return os.path.join(self._config.get('DATA', 'root_path'), self.args.model_name)
     
     @property
     def shuffle(self):
@@ -147,10 +148,6 @@ class Configuration(ConfigParser):
         return self._config.getint("OPTIM", "max_patience")
     
     # ------------------MODEL
-    @property
-    def model_name(self):
-        return self._config.get('MODEL', 'model_name')
-    
     @property
     def bidirection(self):
         return self._config.getboolean('MODEL', 'bidirection')

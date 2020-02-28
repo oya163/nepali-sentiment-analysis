@@ -61,6 +61,8 @@ def parse_args():
                         help="LSTM or CNN model [default: LSTM]")    
     parser.add_argument("-k", "--kfold", dest="kfold", type=int, 
                         default=1, metavar="INT", help="K-fold cross validation [default:1]")
+    parser.add_argument("-n", "--model_name", dest="model_name", type=str, 
+                        default='nepsa_lstm_', metavar="PATH", help="Model file name")
 
     
     args = parser.parse_args()
@@ -73,7 +75,7 @@ def parse_args():
     data_log = os.path.join(args.log_dir, 'data_log.log')
     logger = utilities.get_logger(log_file)
     
-    config = Configuration(config_file=args.config_file, logger=logger)
+    config = Configuration(config_file=args.config_file, logger=logger, args=args)
     config.device = args.device
     config.verbose = args.verbose
     config.eval = args.eval
@@ -84,8 +86,9 @@ def parse_args():
     config.csv = args.csv
     config.train_type = args.train_type
     config.model = args.model
+    config.model_name = args.model_name
     
-    logger.info("***************************************")
+    logger.info("*******************************ARGS")
     logger.info("Data file : {}".format(config.data_file))
     logger.info("Device : {}".format(config.device))
     logger.info("Verbose : {}".format(config.verbose))
@@ -96,6 +99,8 @@ def parse_args():
     logger.info("Split csv file: {}".format(config.csv))
     logger.info("Training Type: {}".format(config.train_type))    
     logger.info("Model: {}".format(config.model))
+    logger.info("Model name: {}".format(config.model_name))
+    logger.info("Root path: {}".format(config.root_path))
     logger.info("***************************************") 
 
     return config, logger
@@ -108,7 +113,7 @@ def main():
     """
     # Parse argument
     config, logger = parse_args()
-    
+
     # Splits the given dataset into k-fold
     if config.kfold > 0 and not config.eval:
         logger.info("Splitting dataset into {0}-fold".format(config.kfold))
@@ -118,7 +123,7 @@ def main():
                       kfold      = config.kfold,
                       csv        = config.csv,
                       log_file   = config.data_log)
-    
+
     tot_acc = 0
     tot_prec = 0
     tot_rec = 0
@@ -172,7 +177,7 @@ def main():
         tot_rec += rec
         tot_f1 += f1
         
-    logger.info("Final Accuracy: %6.3f Final Precision: %6.3f Final Recall: %6.3f Final FB1: %6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold))
+    logger.info("Final_Accuracy:%6.3f Final_Precision:%6.3f Final_Recall:%6.3f Final_FB1:%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold))
         
 
 
