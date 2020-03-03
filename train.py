@@ -173,13 +173,16 @@ class Trainer():
 
         model.train()
 
-        for ((y, aspect, X), v) in iterator:
+        for ((y, ac, at, X), v) in iterator:
 
             optimizer.zero_grad()
-            
-            predictions = model(X, aspect)
-
-            gold = y
+                        
+            if self.config.train_type == 3:
+                predictions = model(X, at, ac)
+                gold = y
+            else:
+                predictions = model(X, at, None)
+                gold = ac                
 
             gold = gold.squeeze(1)
 
@@ -215,11 +218,14 @@ class Trainer():
         
         with torch.no_grad():
 
-            for ((y, aspect, X), v) in iterator:
+            for ((y, ac, at, X), v) in iterator:
 
-                predictions = model(X, aspect)
-
-                gold = y
+                if self.config.train_type == 3:
+                    predictions = model(X, at, ac)
+                    gold = y
+                else:
+                    predictions = model(X, at, None)
+                    gold = ac                      
 
                 gold = gold.squeeze(1)           
                 

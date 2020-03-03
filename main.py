@@ -15,6 +15,7 @@ import os
 import argparse
 import shutil
 import logging
+import time
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
@@ -24,6 +25,7 @@ import numpy as np
 from utility.dataloader import Dataloader
 import utility.utilities as utilities
 import utility.splitter as splitter
+from utility.eval import Evaluator
 
 from tqdm import tqdm, tqdm_notebook, tnrange
 tqdm.pandas(desc='Progress')
@@ -55,14 +57,15 @@ def parse_args():
                         default=True, help="CSV file splitter")
     parser.add_argument("-e", "--eval", action='store_true', 
                         default=False, help="For evaluation purpose only")
-    parser.add_argument("-t", "--train_type", type=int, choices=[1,2], default=1, 
-                        help="1: Text-> Label, 2: Text+AspectTerm -> AspectCategory")
+    parser.add_argument("-t", "--train_type", type=int, choices=[1,2,3], default=1, 
+                        help="1: Text-> Label, 2: Text+AspectTerm -> AspectCategory, +\
+                        3: Text+AspectTerm+AspectCategory -> Label") 
     parser.add_argument("-m", "--model", type=str, choices=['lstm','cnn'], default='lstm', 
-                        help="LSTM or CNN model [default: LSTM]")    
+                        help="LSTM or CNN model [default: LSTM]")
     parser.add_argument("-k", "--kfold", dest="kfold", type=int, 
                         default=1, metavar="INT", help="K-fold cross validation [default:1]")
     parser.add_argument("-n", "--model_name", dest="model_name", type=str, 
-                        default='nepsa_lstm_', metavar="PATH", help="Model file name")
+                        default='', metavar="PATH", help="Model file name")
 
     
     args = parser.parse_args()
@@ -86,7 +89,9 @@ def parse_args():
     config.csv = args.csv
     config.train_type = args.train_type
     config.model = args.model
-    config.model_name = args.model_name
+    model_filename = os.path.basename(config.data_file).split('.')[0]+'_'+config.model+'_'+str(config.train_type)
+    config.model_name = args.model_name if args.model_name else model_filename
+    config.root_path = os.path.join(config.data_path, config.model_name)
     
     logger.info("*******************************ARGS")
     logger.info("Data file : {}".format(config.data_file))
@@ -101,8 +106,7 @@ def parse_args():
     logger.info("Model: {}".format(config.model))
     logger.info("Model name: {}".format(config.model_name))
     logger.info("Root path: {}".format(config.root_path))
-    logger.info("***************************************") 
-
+    logger.info("***************************************")
     return config, logger
 
 
@@ -129,6 +133,7 @@ def main():
     tot_rec = 0
     tot_f1 = 0
     
+    total_start_time = time.time()
     # Training for each fold
     for i in range(0, config.kfold):
         # To match the output filenames
@@ -142,11 +147,16 @@ def main():
     
         # Debugging purpose. DO NOT DELETE
 #         train_iter, val_iter, test_iter = dataloader.load_data(batch_size=1)
+#         for ((y, ac, at, X), v) in train_iter:
+#             print(y)
+#         e = Evaluator(config, None, None, dataloader, 'debug')
 #         sample = next(iter(train_iter))
 #         print(sample.TEXT)
-#         print(sample.TERM)
-#         print(sample.LABEL)
-        
+#         print(e.numpy_to_sent(sample.TEXT))
+#         print(train_iter.dataset.examples[0].SS)
+#         for i,each in enumerate(iter(train_iter)):
+#             print(e.numpy_to_sent(each.TEXT))
+#             print(train_iter.dataset.examples[i].SS)
 #         break
 
         # Load model
@@ -170,14 +180,18 @@ def main():
         model.load_checkpoint()
         acc, prec, rec, f1 = model.predict()
         logger.info("Accuracy: %6.3f Precision: %6.3f Recall: %6.3f FB1: %6.3f "% (acc, prec, rec, f1))
-        
+        logger.info("***********************************************\n")
         # Calculate the metrics
         tot_acc += acc
         tot_prec += prec
         tot_rec += rec
         tot_f1 += f1
-        
-    logger.info("Final_Accuracy:%6.3f Final_Precision:%6.3f Final_Recall:%6.3f Final_FB1:%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold))
+    
+    total_end_time = time.time()
+    
+    epoch_mins, epoch_secs = utilities.epoch_time(total_start_time, total_end_time)
+    logger.info("Epoch Time: %dm %ds"%(epoch_mins, epoch_secs))
+    logger.info("Final_Accuracy;%6.3f;Final_Precision;%6.3f;Final_Recall;%6.3f;Final_FB1;%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold))
         
 
 

@@ -43,7 +43,7 @@ class Evaluator():
             Returns the corresponding TEXT of given Predictions
             Returns chunks of string
         '''    
-        return ''.join([self.dataloader.txt_field.vocab.itos[i] for i in tensor.cpu().data.numpy()[0]]).split()
+        return ' '.join([self.dataloader.txt_field.vocab.itos[i] for i in tensor.cpu().data.numpy()[0]]).split()
 
 
     def pred_to_tag(self, predictions):
@@ -51,7 +51,10 @@ class Evaluator():
             Returns the corresponding LABEL of given Predictions
             Returns chunks of string
         '''
-        return ''.join([self.dataloader.label_field.vocab.itos[i] for i in predictions])       
+        if self.config.train_type == 3:        
+            return ' '.join([self.dataloader.ss_field.vocab.itos[i] for i in predictions])       
+        else:
+            return ' '.join([self.dataloader.ac_field.vocab.itos[i] for i in predictions])       
         
         
     def write_results(self):
@@ -61,9 +64,14 @@ class Evaluator():
         with open(self.test_file, 'w', encoding='utf-8') as rtst:
             self.logger.info('Writing in file: {0}'.format(self.test_file))
             tt = tqdm(iter(self.test_dl), leave=False)
-            for ((y, aspect, X), v) in tt:
-                
-                pred = self.model(X, aspect)
+            for ((y, ac, at, X), v) in tt:
+#                 print(vars(self.test_dl.dataset.examples[0]))
+#                 print(X.shape)
+#                 print(aspect.shape)
+                if self.config.train_type == 3:
+                    pred = self.model(X, at, ac)
+                else:
+                    pred = self.model(X, at, None)
                 sent = self.numpy_to_sent(X)
                 sent = ' '.join(sent)
                 
