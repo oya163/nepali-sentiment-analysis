@@ -132,9 +132,68 @@ def getTokens(input_1, input_2, output_file):
                 out_f.write(token+'\t'+row1[0]+'\t'+row2[0]+'\n')
             else:
                 out_f.write('\n')
+    return None, None
+
+
+def getTokensFromCSV(input_1, output_file):
+    """
+        Gets labels from CoNLL files from two annotators.
+        
+        Parameters
+        ----------
+        input_1 : input file in csv format
+        verbose : boolean
+            Whether to print out which files are being processed
+            
+        Returns
+        -------
+        a1_tokens : list
+            List of tokens from first annotator
+        a2_tokens : list
+            List of tokens from second annotator
+        
+    """
+    a1_tokens = []
+    a2_tokens = []
+    with open(input_1,'r', encoding='utf-8') as csvfile, open(output_file,'w', encoding='utf-8') as out_f:
+        filereader = csv.reader(csvfile, delimiter=',')
+        for row in filereader:
+            a1_tokens.append(row[1])
+            a2_tokens.append(row[2])
+            out_f.write(row[0]+'\t'+row[1]+'\t'+row[2]+'\n')
     return a1_tokens, a2_tokens
 
-        
+
+def getKappa(a1_tokens, a2_tokens, logger, input_type):
+    #     labels=['B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE', 'B-FEEDBACK','I-FEEDBACK', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
+    
+    highlevel_labels = ['GENERAL', 'PROFANITY', 'VIOLENCE', 'FEEDBACK', 'PER', 'ORG', 'LOC', 'MISC']
+    
+#      highlevel_labels = ['GENERAL_0', 'GENERAL_1', 'PROFANITY_0', 'PROFANITY_0', 'VIOLENCE_0', 'VIOLENCE_1', 'FEEDBACK_0', 'FEEDBACK_1']  
+
+    if input_type == 'csv':
+        highlevel_labels = ['FEEDBACK_0', 'FEEDBACK_1']
+        print_kappa(a1_tokens, a2_tokens, highlevel_labels, logger)
+        return 
+    
+    label = []
+    for each in highlevel_labels:
+        per_label = []
+        B_label = 'B-'+each
+        I_label = 'I-'+each
+        label.append(B_label)
+        label.append(I_label)
+        per_label.append(B_label)
+        per_label.append(I_label)
+        print_kappa(a1_tokens, a2_tokens, per_label, logger)
+    print_kappa(a1_tokens, a2_tokens, label, logger)   
+    
+    
+def print_kappa(a1_tokens, a2_tokens, label, logger):
+#     print(a1_tokens,'\n' ,a2_tokens,'\n')
+    logger.info("Kappa coefficient for {0} = {1:6.3f}".format(label, kappa(a1_tokens, a2_tokens, labels=label)))    
+
+    
 def main(**args):
     input_dir_1 = args["input_dir_1"]
     input_dir_2 = args["input_dir_2"]
@@ -155,6 +214,8 @@ def main(**args):
     if input_type == 'dir':
         print("***************Merging Files***************") 
         a1_tokens, a2_tokens = merger(input_dir_1, input_dir_2, output_file, verbose)
+    elif input_type == 'csv':
+        a1_tokens, a2_tokens = getTokensFromCSV(input_dir_1, output_file)
     else:
         a1_tokens, a2_tokens = getTokens(input_dir_1, input_dir_2, output_file)
     
@@ -164,32 +225,17 @@ def main(**args):
     e.evaluate_conll_file(logger=logger, fileName=output_file, raw=True, delimiter=None, oTag='O', latex=False)
     
     print("***************Kappa Evaluation Metric***************")
-    #     labels=['B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE', 'B-FEEDBACK','I-FEEDBACK', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
-    
-    highlevel_labels = ['GENERAL', 'PROFANITY', 'VIOLENCE', 'FEEDBACK', 'PER', 'ORG', 'LOC', 'MISC']
-    
-    label = []
-    for each in highlevel_labels:
-        per_label = []
-        B_label = 'B-'+each
-        I_label = 'I-'+each
-        label.append(B_label)
-        label.append(I_label)
-        per_label.append(B_label)
-        per_label.append(I_label)
-        print_kappa(a1_tokens, a2_tokens, per_label, logger)
-    print_kappa(a1_tokens, a2_tokens, label, logger)
+    getKappa(a1_tokens, a2_tokens, logger, input_type)
     
 
-def print_kappa(a1_tokens, a2_tokens, label, logger):
-    logger.info("Kappa coefficient for {0} = {1:6.3f}".format(label, kappa(a1_tokens, a2_tokens, labels=label)))
+
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser("CoNLL file Merge Argument Parser")
     parser.add_argument("-i", "--input_dir_1", default="./data/agreement/oyesh", metavar="PATH", help="Input first dir path")
     parser.add_argument("-j", "--input_dir_2", default="./data/agreement/sandesh", metavar="PATH", help="Input second dir path")
     parser.add_argument("-o", "--output_file", default="./data/agreement/merged.conll", metavar="FILE", help="Output File Name")
-    parser.add_argument("-t", "--input_type", type=str, choices=['dir','file'], default='dir', metavar="FILE", help="Input type: dir or file [default: file]")
+    parser.add_argument("-t", "--input_type", type=str, choices=['dir','file', 'csv'], default='dir', metavar="FILE", help="Input type: dir or file [default: file]")
     parser.add_argument("-l", "--log_file", default="./data/logs/annotation.log", metavar="FILE", help="Log File Name")
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
 
