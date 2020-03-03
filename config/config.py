@@ -32,8 +32,8 @@ class Configuration(ConfigParser):
         return self._config.get('DATA', 'data_file')    
     
     @property
-    def root_path(self):
-        return os.path.join(self._config.get('DATA', 'root_path'), self.args.model_name)
+    def data_path(self):
+        return os.path.join(self._config.get('DATA', 'data_path'))
     
     @property
     def shuffle(self):
