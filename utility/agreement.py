@@ -167,7 +167,7 @@ def getTokensFromCSV(input_1, output_file):
 def getKappa(a1_tokens, a2_tokens, logger, input_type):
     #     labels=['B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE', 'B-FEEDBACK','I-FEEDBACK', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
     
-    highlevel_labels = ['GENERAL', 'PROFANITY', 'VIOLENCE', 'FEEDBACK', 'PER', 'ORG', 'LOC', 'MISC']
+    highlevel_labels = ['GENERAL', 'PROFANITY', 'VIOLENCE', 'FEEDBACK', 'SARCASM', 'OUTOFSCOPE', 'PER', 'ORG', 'LOC', 'MISC']
     
 #      highlevel_labels = ['GENERAL_0', 'GENERAL_1', 'PROFANITY_0', 'PROFANITY_0', 'VIOLENCE_0', 'VIOLENCE_1', 'FEEDBACK_0', 'FEEDBACK_1']  
 
@@ -232,10 +232,10 @@ def main(**args):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser("CoNLL file Merge Argument Parser")
-    parser.add_argument("-i", "--input_dir_1", default="./data/agreement/oyesh", metavar="PATH", help="Input first dir path")
-    parser.add_argument("-j", "--input_dir_2", default="./data/agreement/sandesh", metavar="PATH", help="Input second dir path")
+    parser.add_argument("-i", "--input_dir_1", default="./data/agreement/oyesh_only", metavar="PATH", help="Input first dir path")
+    parser.add_argument("-j", "--input_dir_2", default="./data/agreement/sandesh_only", metavar="PATH", help="Input second dir path")
     parser.add_argument("-o", "--output_file", default="./data/agreement/merged.conll", metavar="FILE", help="Output File Name")
-    parser.add_argument("-t", "--input_type", type=str, choices=['dir','file', 'csv'], default='dir', metavar="FILE", help="Input type: dir or file [default: file]")
+    parser.add_argument("-t", "--input_type", type=str, choices=['dir','file', 'csv'], default='dir', metavar="FILE", help="Input type: dir or file [default: dir]")
     parser.add_argument("-l", "--log_file", default="./data/logs/annotation.log", metavar="FILE", help="Log File Name")
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
 
