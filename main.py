@@ -180,7 +180,7 @@ def main():
         logger.info("**************Testing Started !!!**************\n")
         model.load_checkpoint()
         acc, prec, rec, f1, auc = model.predict()
-        logger.info("Accuracy: %6.3f Precision: %6.3f Recall: %6.3f FB1: %6.3f "% (acc, prec, rec, f1))
+        logger.info("Accuracy: %6.3f Precision: %6.3f Recall: %6.3f FB1: %6.3f AUC: %6.3f"% (acc, prec, rec, f1, auc))
         logger.info("***********************************************\n")
         # Calculate the metrics
         tot_acc += acc
