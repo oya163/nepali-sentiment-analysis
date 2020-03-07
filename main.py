@@ -132,6 +132,7 @@ def main():
     tot_prec = 0
     tot_rec = 0
     tot_f1 = 0
+    tot_auc = 0
     
     total_start_time = time.time()
     # Training for each fold
@@ -178,7 +179,7 @@ def main():
         # Test
         logger.info("**************Testing Started !!!**************\n")
         model.load_checkpoint()
-        acc, prec, rec, f1 = model.predict()
+        acc, prec, rec, f1, auc = model.predict()
         logger.info("Accuracy: %6.3f Precision: %6.3f Recall: %6.3f FB1: %6.3f "% (acc, prec, rec, f1))
         logger.info("***********************************************\n")
         # Calculate the metrics
@@ -186,12 +187,13 @@ def main():
         tot_prec += prec
         tot_rec += rec
         tot_f1 += f1
+        tot_auc += auc
     
     total_end_time = time.time()
     
     epoch_mins, epoch_secs = utilities.epoch_time(total_start_time, total_end_time)
     logger.info("Epoch Time: %dm %ds"%(epoch_mins, epoch_secs))
-    logger.info("Final_Accuracy;%6.3f;Final_Precision;%6.3f;Final_Recall;%6.3f;Final_FB1;%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold))
+    logger.info("Final_Accuracy;%6.3f;Final_Precision;%6.3f;Final_Recall;%6.3f;Final_FB1;%6.3f;Final_AUC;%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold, tot_auc/config.kfold))
         
 
 

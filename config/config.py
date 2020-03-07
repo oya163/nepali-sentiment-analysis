@@ -180,4 +180,8 @@ class Configuration(ConfigParser):
     @property
     def average(self):
         return self._config.get('EVALUATION', 'average')
+    
+    @property
+    def auc_multiclass(self):
+        return self._config.get('EVALUATION', 'auc_multiclass')    
        

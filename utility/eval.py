@@ -19,7 +19,8 @@ tqdm.pandas(desc='Progress')
 
 import utility.conlleval_perl as e
 
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, roc_curve, auc
+from sklearn.preprocessing import label_binarize
 
 class Evaluator():
     def __init__(self, config, logger, model, dataloader, model_name):
@@ -98,4 +99,13 @@ class Evaluator():
         :return: precision, recall, f1 score
         """
         prec, rec, f1, _ = precision_recall_fscore_support(gold_list, pred_list, average=self.average)
-        return prec, rec, f1
+        gold_list = np.array(gold_list)
+        pred_list = np.array(pred_list)
+        
+        n_values = np.max(gold_list) + 1
+        
+        # create one hot encoding for auc calculation
+        gold_list = np.eye(n_values)[gold_list]
+        pred_list = np.eye(n_values)[pred_list]
+        auc = roc_auc_score(gold_list, pred_list, average=self.average, multi_class=self.config.auc_multiclass)
+        return prec, rec, f1, auc
