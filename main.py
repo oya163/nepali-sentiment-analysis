@@ -12,6 +12,7 @@
 '''
 
 import os
+import sys
 import argparse
 import shutil
 import logging
@@ -57,6 +58,8 @@ def parse_args():
                         default=True, help="CSV file splitter")
     parser.add_argument("-e", "--eval", action='store_true', 
                         default=False, help="For evaluation purpose only")
+    parser.add_argument("-i", "--infer", action='store_true',
+                        default=False, help="For inference purpose only")    
     parser.add_argument("-t", "--train_type", type=int, choices=[1,2,3], default=1, 
                         help="1: Text-> Label, 2: Text+AspectTerm -> AspectCategory, +\
                         3: Text+AspectTerm+AspectCategory -> Label") 
@@ -92,6 +95,7 @@ def parse_args():
     model_filename = os.path.basename(config.data_file).split('.')[0]+'_'+config.model+'_'+str(config.train_type)
     config.model_name = args.model_name if args.model_name else model_filename
     config.root_path = os.path.join(config.data_path, config.model_name)
+    config.infer = args.infer
     
     logger.info("*******************************ARGS")
     logger.info("Data file : {}".format(config.data_file))
@@ -106,18 +110,40 @@ def parse_args():
     logger.info("Model: {}".format(config.model))
     logger.info("Model name: {}".format(config.model_name))
     logger.info("Root path: {}".format(config.root_path))
+    logger.info("Inference mode: {}".format(config.infer))
     logger.info("***************************************")
     return config, logger
 
 
+def infer(config, logger):
+    k = str(config.kfold)
+    dataloader = Dataloader(config, k)
+    
+    # Load model
+    arch = LSTM(config, dataloader).to(config.device)
+    if config.model == 'cnn':
+        arch = CNN(config, dataloader).to(config.device)    
+        
+    # Print network configuration
+    logger.info(arch)
 
-def main():
-    """
-        Main File
-    """
-    # Parse argument
-    config, logger = parse_args()
+    # Trainer
+    model = Trainer(config, logger, dataloader, arch, k)
+    
+    model.load_checkpoint()
+    
+    logger.info("Inferred results")
+    
+    sent = "डा.सुरेन्द्र के.सि र रमेश खरेल सर हरूलाई पनि राख्नु पर्यो"
+    at = "राखनु पर्यो"
+    ac = "FEEDBACK"
+    
+    pred_tag = model.infer(sent, at, ac)
+    
+    print(sent+'\t'+at+'\t'+ac+'\t'+pred_tag+'\n')
+    
 
+def train_test(config, logger):
     # Splits the given dataset into k-fold
     if config.kfold > 0 and not config.eval:
         logger.info("Splitting dataset into {0}-fold".format(config.kfold))
@@ -209,7 +235,20 @@ def main():
     logger.info("Epoch Time: %dm %ds"%(epoch_mins, epoch_secs))
     logger.info("Final_Accuracy;%6.3f;Final_Precision;%6.3f;Final_Recall;%6.3f;Final_FB1;%6.3f;Final_AUC;%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold, tot_auc/config.kfold))
         
+    
+    
+def main():
+    """
+        Main File
+    """
+    # Parse argument
+    config, logger = parse_args()
+    
+    if config.infer:
+        infer(config, logger)
+    else:
+        train_test(config, logger)
 
-
+        
 if __name__=="__main__":
     main()

@@ -301,3 +301,10 @@ class Trainer():
         
         return (test_acc, prec, rec, f1, auc)
     
+    
+    def infer(self, sent, aspect_term, aspect_cat):
+        """
+        Prints the result
+        """
+        evaluate = Evaluator(self.config, self.logger, self.model, self.dataloader, self.model_name)
+        return evaluate.infer(sent, aspect_term, aspect_cat)

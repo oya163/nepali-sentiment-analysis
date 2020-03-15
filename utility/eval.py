@@ -84,7 +84,8 @@ class Evaluator():
             for ((y, ac, at, X), v) in tt:
 #                 print(vars(self.test_dl.dataset.examples[0]))
 #                 print(X.shape)
-#                 print(aspect.shape)
+#                 print(at.shape)
+#                 print(ac.shape)
                 if self.config.train_type == 3:
                     pred = self.model(X, at, ac)
                 else:
@@ -109,7 +110,40 @@ class Evaluator():
                 rtst.write(sent+'\t'+aspect+'\t'+aspect_cat+'\t'+true_tag+'\t'+pred_tag+'\n')
                 
                 rtst.write('\n')
-        rtst.close()
+        rtst.close()   
+
+        
+    def infer(self, sent, aspect_term, aspect_cat):
+        """
+        Prints the result
+        """        
+        # Tokenize the sentence and aspect terms
+        sent_tok = self.dataloader.tokenizer(sent)
+        at_tok = self.dataloader.tokenizer(aspect_term)
+        
+        # Get index from vocab
+        X = [self.dataloader.txt_field.vocab.stoi[t] for t in sent_tok]
+        at = [self.dataloader.at_field.vocab.stoi[t] for t in at_tok]
+        ac = [self.dataloader.ac_field.vocab.stoi[aspect_cat]]
+        
+        # Convert into torch and reshape into [batch, sent_length]
+        X = torch.LongTensor(X).to(self.config.device)
+        X = X.unsqueeze(0)
+        
+        at = torch.LongTensor(at).to(self.config.device) 
+        at = at.unsqueeze(0)
+        
+        ac = torch.LongTensor(ac).to(self.config.device) 
+        ac = ac.unsqueeze(0)        
+
+        # Get predictions
+        pred = self.model(X, at, ac)
+
+        pred_idx = pred.argmax(dim = 1)
+
+        y_pred_val = pred_idx.cpu().data.numpy()
+        pred_tag = self.pred_to_tag(y_pred_val)
+        return pred_tag
         
         
     def prec_rec_f1(self, gold_list, pred_list):
