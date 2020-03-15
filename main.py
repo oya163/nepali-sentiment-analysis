@@ -148,16 +148,30 @@ def main():
     
         # Debugging purpose. DO NOT DELETE
 #         train_iter, val_iter, test_iter = dataloader.load_data(batch_size=1)
-#         for ((y, ac, at, X), v) in train_iter:
-#             print(y)
 #         e = Evaluator(config, None, None, dataloader, 'debug')
+        
+#         for ((y, ac, at, X), v) in train_iter:
+#             print("TEXT = ", e.numpy_to_sent(X))
+#             print("ASPECT TERM = ", e.numpy_to_at(at))
+#             print("ASPECT CATEGORY = ", e.numpy_to_ac(ac))
+#             print("SENTIMENT STRENGTH = ", e.pred_to_tag(y))
+        
 #         sample = next(iter(train_iter))
 #         print(sample.TEXT)
-#         print(e.numpy_to_sent(sample.TEXT))
-#         print(train_iter.dataset.examples[0].SS)
+#         print("TEXT = ", e.numpy_to_sent(sample.TEXT))
+#         print("ASPECT TERM = ", e.numpy_to_sent(sample.TERM))
+
 #         for i,each in enumerate(iter(train_iter)):
-#             print(e.numpy_to_sent(each.TEXT))
-#             print(train_iter.dataset.examples[i].SS)
+#             print("TEXT = ", train_iter.dataset.examples[i].TEXT)
+#             print("TERM = ",train_iter.dataset.examples[i].TERM)
+#             print("ASPECT = ",train_iter.dataset.examples[i].ASPECT)
+#             print("SS = ",train_iter.dataset.examples[i].SS)
+        
+        #### Just Run this to check the values ####
+#         print("TEXT = ", train_iter.dataset.examples[0].TEXT)
+#         print("TERM = ",train_iter.dataset.examples[0].TERM)
+#         print("ASPECT = ",train_iter.dataset.examples[0].ASPECT)
+#         print("SS = ",train_iter.dataset.examples[0].SS)
 #         break
 
         # Load model

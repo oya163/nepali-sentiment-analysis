@@ -46,7 +46,23 @@ class Evaluator():
         '''    
         return ' '.join([self.dataloader.txt_field.vocab.itos[i] for i in tensor.cpu().data.numpy()[0]]).split()
 
-
+    
+    def numpy_to_at(self, tensor):
+        '''
+            Returns the corresponding ASPECT TERM of given Predictions
+            Returns chunks of string
+        '''    
+        return ' '.join([self.dataloader.at_field.vocab.itos[i] for i in tensor.cpu().data.numpy()[0]]).split()
+    
+    
+    def numpy_to_ac(self, tensor):
+        '''
+            Returns the corresponding ASPECT TERM of given Predictions
+            Returns chunks of string
+        '''    
+        return ' '.join([self.dataloader.ac_field.vocab.itos[i] for i in tensor])       
+    
+    
     def pred_to_tag(self, predictions):
         '''
             Returns the corresponding LABEL of given Predictions
@@ -76,6 +92,12 @@ class Evaluator():
                 sent = self.numpy_to_sent(X)
                 sent = ' '.join(sent)
                 
+                aspect = self.numpy_to_at(at)
+                aspect = ' '.join(aspect)  
+                
+                aspect_cat = self.numpy_to_ac(ac)
+#                 aspect_cat = ' '.join(aspect_cat)             
+                
                 pred_idx = pred.argmax(dim = 1)
 
                 y = y.squeeze(1)
@@ -85,7 +107,7 @@ class Evaluator():
                 y_pred_val = pred_idx.cpu().data.numpy()
                 pred_tag = self.pred_to_tag(y_pred_val)
 
-                rtst.write(sent+'\t'+true_tag+'\t'+pred_tag+'\n')
+                rtst.write(sent+'\t'+aspect+'\t'+aspect_cat+'\t'+true_tag+'\t'+pred_tag+'\n')
                 
                 rtst.write('\n')
         rtst.close()
