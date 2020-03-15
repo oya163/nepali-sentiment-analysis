@@ -23,7 +23,7 @@ from torchtext.datasets import SequenceTaggingDataset
 from uniseg.graphemecluster import grapheme_clusters
 
 class Dataloader():
-    def __init__(self, config, k):
+    def __init__(self, config, k=1):
         
         self.root_path = os.path.join(config.root_path, k)
         self.batch_size = config.batch_size
@@ -31,8 +31,8 @@ class Dataloader():
         
         self.txt_field = data.Field(tokenize=self.tokenizer, use_vocab=True, unk_token='<unk>', batch_first=True)
         self.at_field = data.Field(tokenize=self.tokenizer, use_vocab=True, unk_token='<unk>', batch_first=True)
-        self.ac_field = data.Field(batch_first=True, unk_token=None)
-        self.ss_field = data.Field(batch_first=True, unk_token=None)
+        self.ac_field = data.Field(batch_first=True, unk_token=None, pad_token=None)
+        self.ss_field = data.Field(batch_first=True, unk_token=None, pad_token=None)
               
         self.fields = (('SS', self.ss_field), ('ASPECT', self.ac_field), 
                        ('TERM', self.at_field), ('TEXT', self.txt_field))            
