@@ -95,8 +95,7 @@ class Evaluator():
                 aspect = self.numpy_to_at(at)
                 aspect = ' '.join(aspect)  
                 
-                aspect_cat = self.numpy_to_ac(ac)
-#                 aspect_cat = ' '.join(aspect_cat)             
+                aspect_cat = self.numpy_to_ac(ac)          
                 
                 pred_idx = pred.argmax(dim = 1)
 
