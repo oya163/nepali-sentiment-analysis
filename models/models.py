@@ -46,8 +46,8 @@ class LSTM(nn.Module):
         self.lstm = nn.LSTM(self.embedding_dim, 
                            self.hidden_dim, 
                            num_layers=self.num_layers, 
-                           bidirectional=self.bidirectional,
-                           dropout=0.5)
+                           bidirectional=self.bidirectional)
+#                           dropout=0.5)
         
         self.fc = nn.Linear(self.hidden_dim * 2, self.tagset_size)
         
@@ -95,13 +95,14 @@ class LSTM(nn.Module):
 
         #embedded = [sent len (embedded+aspect_emb), batch size, emb dim]
         
-#         embedded, (hidden, cell) = self.lstm(self.dropout(embedded))
-        embedded, (hidden, cell) = self.lstm(embedded)
+        embedded, (hidden, cell) = self.lstm(self.dropout(embedded))
+#        embedded, (hidden, cell) = self.lstm(embedded)
                 
 #         embedded = [batch size, sent_len, num_dim * hidden_dim]
 #         hidden = [num_dim, sent_len, hidden_dim]
 
-        hidden = self.dropout(torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1))
+#        hidden = self.dropout(torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1))
+        hidden = torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1)
 #         print("hidden shape ", hidden.shape)
                 
 #         hidden = [batch size, hid dim * num directions]
@@ -195,7 +196,8 @@ class CNN(nn.Module):
         
         #embedded = [batch size, 1, sent len, emb dim]
         
-        conved = [F.relu(conv(embedded)).squeeze(3) for conv in self.convs]
+        #conved = [F.relu(conv(embedded)).squeeze(3) for conv in self.convs]
+        conved = [F.relu(conv(self.dropout(embedded))).squeeze(3) for conv in self.convs]
             
         #conv_n = [batch size, n_filters, sent len - filter_sizes[n]]
         
@@ -204,7 +206,8 @@ class CNN(nn.Module):
         
         #pooled_n = [batch size, n_filters]
         
-        cat = self.dropout(torch.cat(pooled, dim = 1))
+        #cat = self.dropout(torch.cat(pooled, dim = 1))
+        cat = torch.cat(pooled, dim = 1)
 #         print("Shape of cat", cat.shape)
 
         #cat = [batch size, n_filters * len(filter_sizes)]
