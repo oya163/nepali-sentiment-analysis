@@ -1,2 +1,12 @@
+.*
+__*
+data/
+notebooks/tut5-model.pt
+results/
+saved_models/
+train_backup.py
+utility/MY_YOUTUBE_CLIENT.json
+logs
+playground.ipynb
 nepali-unitag
 thirdparty
