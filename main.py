@@ -69,7 +69,12 @@ def parse_args():
                         default=1, metavar="INT", help="K-fold cross validation [default:1]")
     parser.add_argument("-n", "--model_name", dest="model_name", type=str, 
                         default='', metavar="PATH", help="Model file name")
-
+    parser.add_argument("--txt", dest="txt", type=str, 
+                        default="रबि लामिछाने नेपालि जन्ता को हिरो हुन", help="Input text")    
+    parser.add_argument("--at", dest="at", type=str, 
+                        default="हिरो हुन", help="Input aspect term")
+    parser.add_argument("--ac", dest="ac", type=str, 
+                        default='GENERAL', help="Input aspect category")    
     
     args = parser.parse_args()
     if os.path.exists(args.log_dir):
@@ -96,6 +101,9 @@ def parse_args():
     config.model_name = args.model_name if args.model_name else model_filename
     config.root_path = os.path.join(config.data_path, config.model_name)
     config.infer = args.infer
+    config.txt = args.txt
+    config.at = args.at
+    config.ac = args.ac
     
     logger.info("*******************************ARGS")
     logger.info("Data file : {}".format(config.data_file))
@@ -111,6 +119,10 @@ def parse_args():
     logger.info("Model name: {}".format(config.model_name))
     logger.info("Root path: {}".format(config.root_path))
     logger.info("Inference mode: {}".format(config.infer))
+    if config.infer:
+        logger.info("Text: {}".format(config.txt))
+        logger.info("Aspect Term: {}".format(config.at))
+        logger.info("Aspect Category: {}".format(config.ac))        
     logger.info("***************************************")
     return config, logger
 
@@ -134,13 +146,9 @@ def infer(config, logger):
     
     logger.info("Inferred results")
     
-    sent = "डा.सुरेन्द्र के.सि र रमेश खरेल सर हरूलाई पनि राख्नु पर्यो"
-    at = "राखनु पर्यो"
-    ac = "FEEDBACK"
+    pred_tag = model.infer(config.txt, config.at, config.ac)
     
-    pred_tag = model.infer(sent, at, ac)
-    
-    print(sent+'\t'+at+'\t'+ac+'\t'+pred_tag+'\n')
+    print(config.txt+'\t'+config.at+'\t'+config.ac+'\t'+pred_tag+'\n')
     
 
 def train_test(config, logger):
