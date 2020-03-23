@@ -68,7 +68,7 @@ class Evaluator():
             Returns the corresponding LABEL of given Predictions
             Returns chunks of string
         '''
-        if self.config.train_type == 3:        
+        if self.config.train_type == 3 or self.config.train_type == 4:        
             return ' '.join([self.dataloader.ss_field.vocab.itos[i] for i in predictions])       
         else:
             return ' '.join([self.dataloader.ac_field.vocab.itos[i] for i in predictions])       
@@ -86,10 +86,9 @@ class Evaluator():
 #                 print(X.shape)
 #                 print(at.shape)
 #                 print(ac.shape)
-                if self.config.train_type == 3:
-                    pred = self.model(X, at, ac)
-                else:
-                    pred = self.model(X, at, None)
+
+                pred = self.model(X, at, ac)
+                
                 sent = self.numpy_to_sent(X)
                 sent = ' '.join(sent)
                 

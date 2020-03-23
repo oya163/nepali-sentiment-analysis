@@ -60,9 +60,11 @@ def parse_args():
                         default=False, help="For evaluation purpose only")
     parser.add_argument("-i", "--infer", action='store_true',
                         default=False, help="For inference purpose only")    
-    parser.add_argument("-t", "--train_type", type=int, choices=[1,2,3], default=1, 
-                        help="1: Text-> Label, 2: Text+AspectTerm -> AspectCategory, +\
-                        3: Text+AspectTerm+AspectCategory -> Label") 
+    parser.add_argument("-t", "--train_type", type=int, choices=[1,2,3,4], default=1, 
+                        help="""1: Text-> AspectCategory, 
+                                2: Text+AspectTerm -> AspectCategory,
+                                3: Text+AspectTerm+AspectCategory -> SS,
+                                4: Text -> SS""") 
     parser.add_argument("-m", "--model", type=str, choices=['lstm','cnn'], default='lstm', 
                         help="LSTM or CNN model [default: LSTM]")
     parser.add_argument("-k", "--kfold", dest="kfold", type=int, 
@@ -70,11 +72,11 @@ def parse_args():
     parser.add_argument("-n", "--model_name", dest="model_name", type=str, 
                         default='', metavar="PATH", help="Model file name")
     parser.add_argument("--txt", dest="txt", type=str, 
-                        default="रबि लामिछाने नेपालि जन्ता को हिरो हुन", help="Input text")    
+                        default="रबि लामिछाने नेपालि जन्ता को हिरो हुन", help="Input text (For inference purpose only)")    
     parser.add_argument("--at", dest="at", type=str, 
-                        default="हिरो हुन", help="Input aspect term")
+                        default="हिरो हुन", help="Input aspect term (For inference purpose only)") 
     parser.add_argument("--ac", dest="ac", type=str, 
-                        default='GENERAL', help="Input aspect category")    
+                        default='GENERAL', help="Input aspect category (For inference purpose only)")    
     
     args = parser.parse_args()
     if os.path.exists(args.log_dir):

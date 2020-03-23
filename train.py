@@ -177,12 +177,11 @@ class Trainer():
 
             optimizer.zero_grad()
                         
-            if self.config.train_type == 3:
-                predictions = model(X, at, ac)
-                gold = y
-            else:
-                predictions = model(X, at, None)
-                gold = ac                
+            predictions = model(X, at, ac)
+            gold = y
+
+            if self.config.train_type in [1,2]:
+                gold = ac
 
             gold = gold.squeeze(1)
 
@@ -219,14 +218,13 @@ class Trainer():
         with torch.no_grad():
 
             for ((y, ac, at, X), v) in iterator:
-
-                if self.config.train_type == 3:
-                    predictions = model(X, at, ac)
-                    gold = y
-                else:
-                    predictions = model(X, at, None)
-                    gold = ac                      
-
+                
+                predictions = model(X, at, ac)
+                gold = y
+                
+                if self.config.train_type in [1,2]:
+                    gold = ac
+                    
                 gold = gold.squeeze(1)           
                 
                 gold_label.append(gold.data.cpu().numpy().tolist())
