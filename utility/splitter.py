@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 import csv
 import shutil
+from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import train_test_split
 
 try:
     import utilities as utilities
@@ -180,22 +182,20 @@ def split_train_test(source_path, save_path, logger):
 '''
     Partitions the given data into chunks
     Create train/test file accordingly
+    
+    ***Obsolete yet for reference***
 '''
 def split_train_test_csv(source_path, save_path, logger):
-#     sent_file = os.path.join(source_path, 'text_only.txt')
     
     logger.info("Saving path: {}".format(save_path))
-    
-#     if not os.path.exists(save_path):
-#         os.mkdir(save_path)
         
     train_fname = os.path.join(save_path,'train.txt')
     test_fname = os.path.join(save_path, 'test.txt')
     val_fname = os.path.join(save_path, 'val.txt')
     
-    df_txt = pd.read_csv(source_path, delimiter='\n', encoding='utf-8', 
-                         skip_blank_lines=True, header=None, 
-                         quoting=csv.QUOTE_NONE, names=['TEXT'])
+    df_txt = pd.read_csv(source_path, delimiter=',', encoding='utf-8', 
+                         skip_blank_lines=True, header=['ss', 'ac', 'at', 'text'], 
+                         quoting=csv.QUOTE_MINIMAL, names=['TEXT'])
 
     df = df_txt.sample(frac=1).reset_index(drop=True)
     
@@ -218,6 +218,76 @@ def split_train_test_csv(source_path, save_path, logger):
     logger.info("Length of train dataset: {}".format(len(train_df)))
     logger.info("Length of test dataset: {}".format(len(test_df)))
     logger.info("Length of val dataset: {}".format(len(val_df)))
+
+
+
+def write_csv(df, fname):
+    df.to_csv(fname, header=False, index=False, 
+                    quoting=csv.QUOTE_MINIMAL,  
+                    escapechar=" ", 
+                    encoding='utf-8')
+    
+    
+'''
+    Partitions the given data using GroupShuffleSplit
+    
+    This function will split train/test/val for each
+    aspect category equally
+    
+    Split 80/10/10 for all the category
+    
+    ** Not based on the whole document
+'''
+def split_csv(source_path, save_path, logger):
+
+    logger.info("Saving path: {}".format(save_path))
+        
+    train_fname = os.path.join(save_path,'train.txt')
+    test_fname = os.path.join(save_path, 'test.txt')
+    val_fname = os.path.join(save_path, 'val.txt')
+    
+    df_txt = pd.read_csv(source_path, delimiter=',', 
+                         encoding='utf-8', 
+                         skip_blank_lines=True, 
+                         header=None, 
+                         names=['ss', 'ac', 'at', 'text'])
+
+    # Split the df based on sentiment strength
+    # into positive and negative
+    gss = GroupShuffleSplit(test_size=.20, n_splits=1, random_state = 163).split(df_txt, groups=df_txt['ss'])
+
+    # Get positive and negative dataframe
+    for positive_df, negative_df in gss:
+        
+        # Get data based on the index
+        negative = df_txt.iloc[negative_df]
+        positive = df_txt.iloc[positive_df]
+
+        # Split 80/10/10 -> train, test, val
+        # based on sentiment strength
+        train_neg, test_val_neg = train_test_split(negative, test_size=0.2)
+        train_pos, test_val_pos = train_test_split(positive, test_size=0.2)
+        test_neg, val_neg = train_test_split(test_val_neg, test_size=0.5)
+        test_pos, val_pos = train_test_split(test_val_pos, test_size=0.5)
+
+        # Concat negative and positive dataframe and shuffle
+        train_df = pd.concat([train_pos, train_neg], ignore_index=True).sample(frac=1).reset_index(drop=True)
+        test_df = pd.concat([test_pos, test_neg], ignore_index=True).sample(frac=1).reset_index(drop=True)
+        val_df = pd.concat([val_pos, val_neg], ignore_index=True).sample(frac=1).reset_index(drop=True)
+
+        # Write into csv file
+        write_csv(train_df, train_fname)
+        write_csv(test_df, test_fname)
+        write_csv(val_df, val_fname)
+
+    # Print stat
+    logger.info("Length of train dataset: {}".format(len(train_df)))
+    logger.info("Length of test dataset: {}".format(len(test_df)))
+    logger.info("Length of val dataset: {}".format(len(val_df)))
+    
+    logger.info("Train dataset groupby aspect category: \n{}".format(train_df.groupby('ac').count()))
+    logger.info("Test dataset groupby aspect category: \n{}".format(test_df.groupby('ac').count()))
+    logger.info("Val dataset groupby aspect category: \n{}".format(val_df.groupby('ac').count()))
 
     
 def split(input_file, save_path, verbose, logger):
@@ -253,7 +323,7 @@ def main(**args):
         if not csv:
             split(input_file, final_path, verbose, logger)
         else:
-            split_train_test_csv(input_file, final_path, logger)
+            split_csv(input_file, final_path, logger)
     
     
 if __name__=="__main__":
