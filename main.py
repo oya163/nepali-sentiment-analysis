@@ -5,7 +5,7 @@
     
     How to run:
     For training:
-        python main.py -t 2 -k 1 -d cpu
+        python main.py -t 3 -k 1 -d cpu
         
     For evaluation:
         python main.py -k 1 -e
@@ -48,6 +48,8 @@ def parse_args():
     
     parser.add_argument("-c", "--config", dest="config_file", type=str, metavar="PATH", 
                         default="./config/config.ini",help="Configuration file path")
+    parser.add_argument("-r", "--root_path", dest="root_path", type=str, metavar="PATH", 
+                        default=None,help="Data root file path")    
     parser.add_argument("-l", "--log_dir", dest="log_dir", type=str, 
                         metavar="PATH", default="./logs",help="Log file path")    
     parser.add_argument("-d", "--device", dest="device", type=str, 
@@ -113,7 +115,7 @@ def parse_args():
     config.model = args.model
     model_filename = os.path.basename(config.data_file).split('.')[0]+'_'+config.model+'_'+str(config.train_type)
     config.model_name = args.model_name if args.model_name else model_filename
-    config.root_path = os.path.join(config.data_path, config.model_name)
+    config.root_path = args.root_path if args.root_path else os.path.join(config.data_path, config.model_name)
     config.infer = args.infer
     config.txt = args.txt
     config.at = args.at
@@ -138,6 +140,7 @@ def parse_args():
         logger.info("Aspect Term: {}".format(config.at))
         logger.info("Aspect Category: {}".format(config.ac))        
     logger.info("***************************************")
+    
     return config, logger
 
 
@@ -168,15 +171,6 @@ def infer(config, logger):
 
 # Train/test section
 def train_test(config, logger):
-    # Splits the given dataset into k-fold
-    if config.kfold > 0 and not config.eval:
-        logger.info("Splitting dataset into {0}-fold".format(config.kfold))
-        splitter.main(input_file = config.data_file, 
-                      output_dir = config.root_path, 
-                      verbose    = config.verbose, 
-                      kfold      = config.kfold,
-                      csv        = config.csv,
-                      log_file   = config.data_log)
 
     tot_acc = 0
     tot_prec = 0
@@ -192,7 +186,7 @@ def train_test(config, logger):
         
         # Load data iterator
         dataloader = Dataloader(config, k)
-    
+        
         # Debugging purpose. DO NOT DELETE
 #         train_iter, val_iter, test_iter = dataloader.load_data(batch_size=1)
 #         e = Evaluator(config, None, None, dataloader, 'debug')
@@ -259,8 +253,7 @@ def train_test(config, logger):
     logger.info("Epoch Time: %dm %ds"%(epoch_mins, epoch_secs))
     logger.info("Final_Accuracy;%6.3f;Final_Precision;%6.3f;Final_Recall;%6.3f;Final_FB1;%6.3f;Final_AUC;%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold, tot_auc/config.kfold))
         
-    
-    
+
 def main():
     """
         Main File

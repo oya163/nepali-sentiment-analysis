@@ -333,7 +333,7 @@ if __name__=="__main__":
     parser.add_argument("-c", "--csv", action='store_true', default=False, help="CSV file splitter")
     parser.add_argument("-k", "--kfold", dest='kfold', type=int, default=1, metavar="INT", help="K-fold")
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
-    parser.add_argument("-l", "--log_file", dest="log_file", type=str, metavar="PATH", default="./data/logs/data_log.txt",help="Log file")
+    parser.add_argument("-l", "--log_file", dest="log_file", type=str, metavar="PATH", default="./logs/data_log.log",help="Log file")
 
     args = vars(parser.parse_args())
 

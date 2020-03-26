@@ -65,8 +65,8 @@ class Dataloader():
         
         self.weights = self.txt_field.vocab.vectors
         
-        if config.verbose:
-            self.print_stat()
+
+        self.print_stat()
 
     def tokenizer(self, x):
         return x.split()        
@@ -113,7 +113,8 @@ class Dataloader():
     def print_stat(self):
         """
         Prints the data statistics
-        """           
+        """
+        print('Location of dataset = ', self.root_path)
         print('Length of training dataset = ', len(self.train_ds))
         print('Length of testing dataset = ', len(self.test_ds))
         print('Length of validation dataset = ', len(self.val_ds))
