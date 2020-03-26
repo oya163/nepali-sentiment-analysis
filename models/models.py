@@ -106,8 +106,8 @@ class LSTM(nn.Module):
 #         print("hidden shape ", hidden.shape)
                 
 #         hidden = [batch size, hid dim * num directions]
-        final = self.fc(hidden)
-
+        final = F.softmax(self.fc(hidden), dim=-1)
+        
         return final
 
 
@@ -211,7 +211,8 @@ class CNN(nn.Module):
 #         print("Shape of cat", cat.shape)
 
         #cat = [batch size, n_filters * len(filter_sizes)]
-        final = self.fc(cat)
 #         print("Shape of final", final.shape)
         
-        return final    
+        final = F.softmax(self.fc(cat), dim=-1)
+        
+        return final

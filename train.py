@@ -179,7 +179,7 @@ class Trainer():
                         
             predictions = model(X, at, ac)
             gold = y
-
+            
             if self.config.train_type in [1,2]:
                 gold = ac
 
@@ -188,7 +188,7 @@ class Trainer():
             loss = criterion(predictions, gold)
 
             acc = self.categorical_accuracy(predictions, gold)
-
+            
             loss.backward()
 
             optimizer.step()

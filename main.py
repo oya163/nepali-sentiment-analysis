@@ -60,7 +60,7 @@ def parse_args():
                         default=False, help="For evaluation purpose only")
     parser.add_argument("-i", "--infer", action='store_true',
                         default=False, help="For inference purpose only")    
-    parser.add_argument("-t", "--train_type", type=int, choices=[1,2,3,4], default=1, 
+    parser.add_argument("-t", "--train_type", type=int, choices=[1,2,3,4], default=3, 
                         help="""1: Text-> AspectCategory, 
                                 2: Text+AspectTerm -> AspectCategory,
                                 3: Text+AspectTerm+AspectCategory -> SS,
@@ -84,8 +84,9 @@ def parse_args():
     os.mkdir(args.log_dir)   
 
     # Init Logger
-    log_file = os.path.join(args.log_dir, 'complete.log')
-    data_log = os.path.join(args.log_dir, 'data_log.log')
+    log_suffix = '_'+args.model+'_'+str(args.train_type)+'.log'
+    log_file = os.path.join(args.log_dir, 'complete'+log_suffix)
+    data_log = os.path.join(args.log_dir, 'datalog'+log_suffix)
     logger = utilities.get_logger(log_file)
     
     config = Configuration(config_file=args.config_file, logger=logger, args=args)

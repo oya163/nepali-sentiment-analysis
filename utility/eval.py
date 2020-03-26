@@ -161,5 +161,5 @@ class Evaluator():
         # create one hot encoding for auc calculation
         gold_list = np.eye(n_values)[gold_list]
         pred_list = np.eye(n_values)[pred_list]
-        auc = roc_auc_score(gold_list, pred_list, average=self.average, multi_class=self.config.auc_multiclass)
+        auc = roc_auc_score(gold_list, pred_list, average=self.average)
         return prec, rec, f1, auc
