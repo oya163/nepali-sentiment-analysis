@@ -79,16 +79,27 @@ def parse_args():
                         default='GENERAL', help="Input aspect category (For inference purpose only)")    
     
     args = parser.parse_args()
-    if os.path.exists(args.log_dir):
-        shutil.rmtree(args.log_dir)
-    os.mkdir(args.log_dir)   
+    
+    # If log dir does not exist, create it
+    if not os.path.exists(args.log_dir):
+        os.mkdir(args.log_dir)   
 
     # Init Logger
     log_suffix = '_'+args.model+'_'+str(args.train_type)+'.log'
     log_file = os.path.join(args.log_dir, 'complete'+log_suffix)
     data_log = os.path.join(args.log_dir, 'datalog'+log_suffix)
+    
+    # If log files exist, remove them
+    if os.path.exists(log_file):
+        os.remove(log_file) 
+        
+    if os.path.exists(data_log):
+        os.remove(data_log) 
+        
+    # Logger
     logger = utilities.get_logger(log_file)
     
+    # Configuration
     config = Configuration(config_file=args.config_file, logger=logger, args=args)
     config.device = args.device
     config.verbose = args.verbose
@@ -130,6 +141,7 @@ def parse_args():
     return config, logger
 
 
+# Inference section
 def infer(config, logger):
     k = str(config.kfold)
     dataloader = Dataloader(config, k)
@@ -154,6 +166,7 @@ def infer(config, logger):
     print(config.txt+'\t'+config.at+'\t'+config.ac+'\t'+pred_tag+'\n')
     
 
+# Train/test section
 def train_test(config, logger):
     # Splits the given dataset into k-fold
     if config.kfold > 0 and not config.eval:
@@ -176,9 +189,6 @@ def train_test(config, logger):
     for i in range(0, config.kfold):
         # To match the output filenames
         k = str(i+1)
-        
-        if not config.eval:
-            logger.info("Starting training on {0}th-fold".format(k))
         
         # Load data iterator
         dataloader = Dataloader(config, k)
@@ -225,6 +235,7 @@ def train_test(config, logger):
         # Train
         if not config.eval:
             logger.info("**************Training started !!!**************\n")
+            logger.info("Starting training on {0}th-fold".format(k))
             model.fit()
 
         # Test
@@ -233,6 +244,7 @@ def train_test(config, logger):
         acc, prec, rec, f1, auc = model.predict()
         logger.info("Accuracy: %6.3f Precision: %6.3f Recall: %6.3f FB1: %6.3f AUC: %6.3f"% (acc, prec, rec, f1, auc))
         logger.info("***********************************************\n")
+        
         # Calculate the metrics
         tot_acc += acc
         tot_prec += prec
@@ -242,6 +254,7 @@ def train_test(config, logger):
     
     total_end_time = time.time()
     
+    # Display final results
     epoch_mins, epoch_secs = utilities.epoch_time(total_start_time, total_end_time)
     logger.info("Epoch Time: %dm %ds"%(epoch_mins, epoch_secs))
     logger.info("Final_Accuracy;%6.3f;Final_Precision;%6.3f;Final_Recall;%6.3f;Final_FB1;%6.3f;Final_AUC;%6.3f "% (tot_acc/config.kfold, tot_prec/config.kfold, tot_rec/config.kfold, tot_f1/config.kfold, tot_auc/config.kfold))
