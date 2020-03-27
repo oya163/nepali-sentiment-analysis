@@ -120,13 +120,13 @@ class CNN(nn.Module):
         embedded = self.embedding(text)
         at_emb = self.embedding(at)
         ac_emb = self.ac_embeddings(ac)
-
-        embedded = torch.cat([embedded, ac_emb], dim=1)        
+        
+        embedded = torch.cat([embedded, ac_emb], dim=1)
         
         # Concatenate text and aspect term
         if self.train_type in [2,3]:
-            embedded = torch.cat((embedded, at_emb), dim=0)
-                
+            embedded = torch.cat((embedded, at_emb), dim=1)
+        
         #embedded = [batch size, sent len, emb dim]
         
         embedded = embedded.unsqueeze(1)

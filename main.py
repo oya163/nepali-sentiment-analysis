@@ -92,14 +92,15 @@ def parse_args():
     data_log = os.path.join(args.log_dir, 'datalog'+log_suffix)
     
     # If log files exist, remove them
-    if os.path.exists(log_file):
-        os.remove(log_file) 
+#     if os.path.exists(log_file):
+#         os.remove(log_file) 
         
-    if os.path.exists(data_log):
-        os.remove(data_log) 
-        
+#     if os.path.exists(data_log):
+#         os.remove(data_log) 
+    
     # Logger
     logger = utilities.get_logger(log_file)
+    
     
     # Configuration
     config = Configuration(config_file=args.config_file, logger=logger, args=args)
@@ -120,6 +121,7 @@ def parse_args():
     config.txt = args.txt
     config.at = args.at
     config.ac = args.ac
+
     
     logger.info("*******************************ARGS")
     logger.info("Data file : {}".format(config.data_file))
