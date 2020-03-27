@@ -1,21 +1,20 @@
 #!/bin/bash
 
-'''
-    This script will run lstm and cnn
-    trainer for train_type 3 and 4
-    with 5-fold cross validation and
-    produces results in corresponding
-    folders with logs.
+
+#     This script will run lstm and cnn
+#     trainer for train_type 3 and 4
+#     with 5-fold cross validation and
+#     produces results in corresponding
+#     folders with logs.
     
-    For final results, please check
-    ./logs directory and respective filename
+#     For final results, please check
+#     ./logs directory and respective filename
     
-    Log file format:
-        complete_<MODEL>_<TRAIN_TYPE>.log
-        
-    How to run:
-        bash run_classification.sh
-'''
+#     Log file format:
+#         complete_<MODEL>_<TRAIN_TYPE>.log
+
+#     How to run:
+#         time bash run_classification.sh
 
 KFOLD=5
 CUDA=cuda:1

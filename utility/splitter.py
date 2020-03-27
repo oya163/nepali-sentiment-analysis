@@ -281,6 +281,7 @@ def split_csv(source_path, save_path, logger):
         write_csv(val_df, val_fname)
 
     # Print stat
+    logger.info("******************************************************")
     logger.info("Length of train dataset: {}".format(len(train_df)))
     logger.info("Length of test dataset: {}".format(len(test_df)))
     logger.info("Length of val dataset: {}".format(len(val_df)))
@@ -288,6 +289,7 @@ def split_csv(source_path, save_path, logger):
     logger.info("Train dataset groupby aspect category: \n{}".format(train_df.groupby('ac').count()))
     logger.info("Test dataset groupby aspect category: \n{}".format(test_df.groupby('ac').count()))
     logger.info("Val dataset groupby aspect category: \n{}".format(val_df.groupby('ac').count()))
+    logger.info("******************************************************")
 
     
 def split(input_file, save_path, verbose, logger):
