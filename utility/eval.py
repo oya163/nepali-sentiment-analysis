@@ -30,7 +30,7 @@ class Evaluator():
         self.model_name = model_name
         self.dataloader = dataloader
         
-        self.train_dl, self.val_dl, self.test_dl = dataloader.load_data(batch_size=1, shuffle=False)
+        self.train_dl, self.val_dl, self.test_dl = dataloader.load_data(batch_size=config.batch_size, shuffle=False)
         self.results_dir = config.results_dir
         
         ts_file = self.model_name+'_test.txt'
@@ -78,38 +78,49 @@ class Evaluator():
         """
         Writes the result into the file
         """        
-        with open(self.test_file, 'w', encoding='utf-8') as rtst:
+        self.model.eval()    
+        
+        with torch.no_grad() and open(self.test_file, 'w', encoding='utf-8') as rtst:
             self.logger.info('Writing in file: {0}'.format(self.test_file))
             tt = tqdm(iter(self.test_dl), leave=False)
+            
             for ((y, ac, at, X), v) in tt:
 #                 print(vars(self.test_dl.dataset.examples[0]))
 #                 print(X.shape)
 #                 print(at.shape)
 #                 print(ac.shape)
-
+#                 print(y.shape)
+                # Need to fix here to get
+                # data for each with batch_size=8
+                
                 pred = self.model(X, at, ac)
                 
-                sent = self.numpy_to_sent(X)
-                sent = ' '.join(sent)
+                for i in range(X.shape[0]):
+                    txt = X[i].unsqueeze(0)
+                    aterm = at[i].unsqueeze(0)
+                    acat = ac[i].unsqueeze(0)
+                    gold = y[i].unsqueeze(0)
+                    predicted = pred[i].unsqueeze(0)
                 
-                aspect = self.numpy_to_at(at)
-                aspect = ' '.join(aspect)  
-                
-                aspect_cat = self.numpy_to_ac(ac)          
-                
-                pred_idx = pred.argmax(dim = 1)
+                    sent = self.numpy_to_sent(txt)
+                    sent = ' '.join(sent)
 
-                y = y.squeeze(1)
-                y_true_val = y.cpu().data.numpy()
-                true_tag = self.pred_to_tag(y_true_val)
+                    aspect_cat = self.numpy_to_ac(acat)         
 
-                y_pred_val = pred_idx.cpu().data.numpy()
-                pred_tag = self.pred_to_tag(y_pred_val)
+                    aspect = self.numpy_to_at(aterm)
+                    aspect = ' '.join(aspect)  
+                    
+                    y_true_val = gold.squeeze(1).data.cpu().numpy()
+                    true_tag = self.pred_to_tag(y_true_val)
 
-                rtst.write(sent+'\t'+aspect+'\t'+aspect_cat+'\t'+true_tag+'\t'+pred_tag+'\n')
+                    y_pred_val = predicted.argmax(dim = 1, keepdim = True).squeeze(1).data.cpu().numpy()
+                    pred_tag = self.pred_to_tag(y_pred_val)
                 
-                rtst.write('\n')
-        rtst.close()   
+                    rtst.write(sent+'\t'+aspect+'\t'+aspect_cat+'\t'+true_tag+'\t'+pred_tag+'\n')
+
+                    rtst.write('\n')
+
+            rtst.close()   
 
         
     def infer(self, sent, aspect_term, aspect_cat):
