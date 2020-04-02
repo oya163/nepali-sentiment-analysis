@@ -37,7 +37,5 @@ do
             python main.py -r ${ROOT_PATH} -t ${TRAIN_TYPE} \
                            -k ${KFOLD} -n ${MODEL_NAME} \
                            -m ${MODEL} -d ${CUDA}
-            
-            exit 1
         done        
 done

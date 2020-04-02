@@ -22,11 +22,14 @@ except ImportError:
 MAX_SEQ_LENGTH = 200
 MIN_SEQ_LENGTH = 5
 
-#forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
+# For nepsa_all
+forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
 
+# For nepsa_target
 #forbidden_list = ['B-FEEDBACK','I-FEEDBACK', 'B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE']
 
-forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
+# For nepsa_aspect
+#forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
 
 
 def text_tag_convert(input_file, logger, verbose=False):
@@ -331,7 +334,7 @@ def main(**args):
 if __name__=="__main__":
     parser = argparse.ArgumentParser("Dataset Splitter Argument Parser")
     parser.add_argument("-i", "--input_file", default="./data/dataset/total.conll", metavar="PATH", help="Input file path")
-    parser.add_argument("-o", "--output_dir", default="../torchnlp/data/nepsa/", metavar="PATH", help="Output Directory")
+    parser.add_argument("-o", "--output_dir", default="../torchnlp/data/nepsa_all/", metavar="PATH", help="Output Directory")
     parser.add_argument("-c", "--csv", action='store_true', default=False, help="CSV file splitter")
     parser.add_argument("-k", "--kfold", dest='kfold', type=int, default=1, metavar="INT", help="K-fold")
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
