@@ -23,13 +23,13 @@ MAX_SEQ_LENGTH = 200
 MIN_SEQ_LENGTH = 5
 
 # For nepsa_all
-forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
+#forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
 
 # For nepsa_target
-#forbidden_list = ['B-FEEDBACK','I-FEEDBACK', 'B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE']
+# forbidden_list = ['B-FEEDBACK','I-FEEDBACK', 'B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE']
 
 # For nepsa_aspect
-#forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
+forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
 
 
 def text_tag_convert(input_file, logger, verbose=False):
@@ -124,7 +124,7 @@ def write_df(df, fname, logger):
             # Remove if it contains only 'O'
             if list(set(tag)) != ['O']:
                 for t1, t2 in zip(text, tag):
-                    f.write(t1+'\t'+t2+'\n')
+                    f.write(t1+' '+t2+'\n')
             else:
                 invalid_counter+=1
             f.write('\n')
