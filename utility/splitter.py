@@ -124,7 +124,7 @@ def write_df(df, fname, logger):
             # Remove if it contains only 'O'
             if list(set(tag)) != ['O']:
                 for t1, t2 in zip(text, tag):
-                    f.write(t1+'\t'+t2+'\n')
+                    f.write(t1+' '+t2+'\n')
             else:
                 invalid_counter+=1
             f.write('\n')
