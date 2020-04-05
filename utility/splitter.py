@@ -194,7 +194,7 @@ def split_train_test_csv(source_path, save_path, logger):
         
     train_fname = os.path.join(save_path,'train.txt')
     test_fname = os.path.join(save_path, 'test.txt')
-    val_fname = os.path.join(save_path, 'val.txt')
+    val_fname = os.path.join(save_path, 'dev.txt')
     
     df_txt = pd.read_csv(source_path, delimiter=',', encoding='utf-8', 
                          skip_blank_lines=True, header=['ss', 'ac', 'at', 'text'], 
@@ -247,7 +247,7 @@ def split_csv(source_path, save_path, logger):
         
     train_fname = os.path.join(save_path,'train.txt')
     test_fname = os.path.join(save_path, 'test.txt')
-    val_fname = os.path.join(save_path, 'val.txt')
+    val_fname = os.path.join(save_path, 'dev.txt')
     
     df_txt = pd.read_csv(source_path, delimiter=',', 
                          encoding='utf-8', 
