@@ -125,9 +125,10 @@ def write_df(df, fname, logger):
             if list(set(tag)) != ['O']:
                 for t1, t2 in zip(text, tag):
                     f.write(t1+' '+t2+'\n')
+                f.write('\n')
             else:
                 invalid_counter+=1
-            f.write('\n')
+            
         logger.info('Number of sentences containing only \'O\': {}'.format(invalid_counter))
         logger.info('Created: {}'.format(fname))
         f.close()
