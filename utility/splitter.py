@@ -19,9 +19,6 @@ try:
 except ImportError:
     import utility.utilities as utilities
 
-MAX_SEQ_LENGTH = 200
-MIN_SEQ_LENGTH = 5
-
 # For nepsa_all
 # nepsa_all = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
 nepsa_all = ['B-PER','I-PER', 
@@ -56,7 +53,7 @@ forbid = {
 }
 
 
-def text_tag_convert(input_file, logger, verbose=False):
+def text_tag_convert(input_file, logger, seq_len, verbose=False):
     dir_name = os.path.dirname(input_file)
     
     output_dir = os.path.join(dir_name, 'text_tag_only')
@@ -65,7 +62,9 @@ def text_tag_convert(input_file, logger, verbose=False):
     
     sent_file = os.path.join(output_dir, 'text_only.txt')
     tag_file = os.path.join(output_dir, 'tag_only.txt')
-                         
+
+    MIN_SEQ_LENGTH = seq_len[0]
+    MAX_SEQ_LENGTH = seq_len[1]
     
     with open(input_file,'r', encoding='utf-8') as in_file, open(sent_file,'w', encoding='utf-8') as txt_f, open(tag_file,'w', encoding='utf-8') as tag_f:
         sentence = []
@@ -112,16 +111,15 @@ def text_tag_convert(input_file, logger, verbose=False):
                 tag = []                   
             
 
-        if verbose:
-            logger.info("Max sentence length limit = {}".format(MAX_SEQ_LENGTH))
-            logger.info("Min sentence length limit = {}".format(MIN_SEQ_LENGTH))
-            logger.info("Longest sentence length = {}".format(max_length))
-            logger.info("Longest sentence at line number = {}".format(j))
-            logger.info("Longest sentence counter = {}".format(max_counter))
-            logger.info("Shortest sentence counter = {}".format(min_counter))
-            logger.info("% of sentence removed = {}%".format(max_counter+min_counter/line_num * 100))
-            logger.info("Total number of sentence before removal= {}".format(line_num))
-            logger.info("Total number of sentence after removal= {}".format(sent_counter))
+        logger.info("Max sentence length limit = {}".format(MAX_SEQ_LENGTH))
+        logger.info("Min sentence length limit = {}".format(MIN_SEQ_LENGTH))
+        logger.info("Longest sentence length = {}".format(max_length))
+        logger.info("Longest sentence at line number = {}".format(j))
+        logger.info("Longest sentence counter = {}".format(max_counter))
+        logger.info("Shortest sentence counter = {}".format(min_counter))
+        logger.info("% of sentence removed = {}%".format(max_counter+min_counter/line_num * 100))
+        logger.info("Total number of sentence before removal= {}".format(line_num))
+        logger.info("Total number of sentence after removal= {}".format(sent_counter))
             
         in_file.close()
         txt_f.close()
@@ -325,8 +323,8 @@ def split_csv(source_path, save_path, logger):
     logger.info("******************************************************")
 
     
-def split(input_file, save_path, verbose, logger, split_type):
-    sent_file, tag_file = text_tag_convert(input_file, logger, verbose)
+def split(input_file, save_path, verbose, logger, split_type, seq_len):
+    sent_file, tag_file = text_tag_convert(input_file, logger, seq_len, verbose)
     
     source_path = os.path.dirname(sent_file)
     logger.info("Source path: {}".format(source_path))
@@ -341,6 +339,7 @@ def main(**args):
     csv = args["csv"]
     log_dir = args["log_dir"]
     split_type = args["split_type"]
+    seq_len = (args["min_seq_len"], args["max_seq_len"])
 
     if not os.path.exists(log_dir):
         os.mkdir(log_dir)
@@ -363,7 +362,7 @@ def main(**args):
         if not os.path.exists(final_path):
             os.mkdir(final_path)
         if not csv:
-            split(input_file, final_path, verbose, logger, split_type)
+            split(input_file, final_path, verbose, logger, split_type, seq_len)
         else:
             split_csv(input_file, final_path, logger)
     
@@ -384,11 +383,16 @@ if __name__=="__main__":
                         default=False, help="Print description")
     parser.add_argument("-l", "--log_dir", dest="log_dir", 
                         type=str, metavar="DIR", 
-                        default="./logs/",help="Log dir")
+                        default="./logs/",help="Log dir")  
+    parser.add_argument("-m", "--max_seq_len", dest='max_seq_len', type=int, 
+                        default=70, metavar="INT", help="Max Sequence Length")
+    parser.add_argument("-n", "--min_seq_len", dest='min_seq_len', type=int, 
+                        default=5, metavar="INT", help="Min Sequence Length")      
     parser.add_argument("-s", "--split_type", type=str, 
                         choices=['nepsa_all','nepsa_target', 'nepsa_aspect'], 
                         default='nepsa_all', 
-                        help="Split type [default: nepsa_all]")    
+                        help="Split type [default: nepsa_all]")
+ 
 
     args = vars(parser.parse_args())
 
