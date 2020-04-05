@@ -23,13 +23,31 @@ MAX_SEQ_LENGTH = 200
 MIN_SEQ_LENGTH = 5
 
 # For nepsa_all
-nepsa_all = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
+# nepsa_all = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
+nepsa_all = ['B-PER','I-PER', 
+             'B-ORG','I-ORG', 
+             'B-LOC','I-LOC', 
+             'B-MISC','I-MISC', 
+             'B-FEEDBACK','I-FEEDBACK',
+             'B-GENERAL','I-GENERAL', 
+             'B-PROFANITY','I-PROFANITY',
+             'B-VIOLENCE','I-VIOLENCE']
 
 # For nepsa_target
-nepsa_target= ['B-FEEDBACK','I-FEEDBACK', 'B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE']
+# nepsa_target= ['B-FEEDBACK','I-FEEDBACK', 'B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE']
+nepsa_target= ['B-PER','I-PER', 
+               'B-ORG','I-ORG', 
+               'B-LOC','I-LOC', 
+               'B-MISC','I-MISC']
+
 
 # For nepsa_aspect
-nepsa_aspect = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
+# nepsa_aspect = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
+nepsa_aspect = ['B-FEEDBACK','I-FEEDBACK',
+                'B-GENERAL','I-GENERAL', 
+                'B-PROFANITY','I-PROFANITY',
+                'B-VIOLENCE','I-VIOLENCE']
+
 
 forbid = {
     'nepsa_all' : nepsa_all,
@@ -123,7 +141,7 @@ def write_df(df, fname, logger, split_type):
             # Splits the TEXT and TAG into chunks
             text = r['TEXT'].split()
             tag = r['TAG'].split()
-            tag = ['O' if x in forbid[split_type] else x for x in tag]
+            tag = ['O' if x not in forbid[split_type] else x for x in tag]
             
             # Remove specific lines having these categories
             # if not set(tag).intersection(set(['B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE'])):
@@ -184,11 +202,16 @@ def split_train_test(source_path, save_path, logger, split_type):
     invalid_test_count = write_df(test_df, test_fname, logger, split_type)
     invalid_val_count = write_df(val_df, val_fname, logger, split_type)
     
+    total_invalid = invalid_train_count + invalid_test_count + invalid_val_count
+    total_data_length = len(train_df) + len(test_df) + len(val_df)
+    
     # Print stat
     logger.info("Length of train dataset: {}".format(len(train_df) - invalid_train_count))
     logger.info("Length of test dataset: {}".format(len(test_df) - invalid_test_count))
     logger.info("Length of val dataset: {}".format(len(val_df) - invalid_val_count))
+    logger.info("Total dataset reduced by: {:.3f}%".format((total_invalid / total_data_length) * 100))
 
+    
 '''
     Partitions the given data into chunks
     Create train/test file accordingly
@@ -327,6 +350,7 @@ def main(**args):
     logger = utilities.get_logger(log_file)
     
     # Clean up output directory
+    save_path = os.path.join(save_path, split_type)
     if os.path.exists(save_path):
         shutil.rmtree(save_path)
 
@@ -350,7 +374,7 @@ if __name__=="__main__":
                         default="./data/dataset/total.conll", 
                         metavar="PATH", help="Input file path")
     parser.add_argument("-o", "--output_dir", 
-                        default="../torchnlp/data/nepsa_all/", 
+                        default="../torchnlp/data/", 
                         metavar="PATH", help="Output Directory")
     parser.add_argument("-c", "--csv", action='store_true', 
                         default=False, help="CSV file splitter")
