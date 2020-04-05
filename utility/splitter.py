@@ -150,7 +150,7 @@ def split_train_test(source_path, save_path, logger):
         
     train_fname = os.path.join(save_path,'train.txt')
     test_fname = os.path.join(save_path, 'test.txt')
-    val_fname = os.path.join(save_path, 'val.txt')
+    val_fname = os.path.join(save_path, 'dev.txt')
     
     df_txt = pd.read_csv(sent_file, delimiter='\n', encoding='utf-8', 
                          skip_blank_lines=True, header=None, 
