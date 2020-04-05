@@ -23,13 +23,19 @@ MAX_SEQ_LENGTH = 200
 MIN_SEQ_LENGTH = 5
 
 # For nepsa_all
-#forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
+nepsa_all = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE']
 
 # For nepsa_target
-# forbidden_list = ['B-FEEDBACK','I-FEEDBACK', 'B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE']
+nepsa_target= ['B-FEEDBACK','I-FEEDBACK', 'B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-GENERAL','I-GENERAL', 'B-PROFANITY','I-PROFANITY', 'B-VIOLENCE','I-VIOLENCE']
 
 # For nepsa_aspect
-forbidden_list = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
+nepsa_aspect = ['B-DATE','I-DATE', 'B-EVENT','I-EVENT', 'B-NUM','I-NUM', 'B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE', 'B-PER','I-PER', 'B-ORG','I-ORG', 'B-LOC','I-LOC', 'B-MISC','I-MISC']
+
+forbid = {
+    'nepsa_all' : nepsa_all,
+    'nepsa_target' : nepsa_target,
+    'nepsa_aspect' : nepsa_aspect
+}
 
 
 def text_tag_convert(input_file, logger, verbose=False):
@@ -110,14 +116,14 @@ def text_tag_convert(input_file, logger, verbose=False):
 '''
     Function to write dataframe into files
 '''
-def write_df(df, fname, logger):
+def write_df(df, fname, logger, split_type):
     invalid_counter = 0
     with open(fname, 'w', encoding='utf-8') as f:
         for i, r in df.iterrows():
             # Splits the TEXT and TAG into chunks
             text = r['TEXT'].split()
             tag = r['TAG'].split()
-            tag = ['O' if x in forbidden_list else x for x in tag]
+            tag = ['O' if x in forbid[split_type] else x for x in tag]
             
             # Remove specific lines having these categories
             # if not set(tag).intersection(set(['B-SARCASM','I-SARCASM', 'B-OUTOFSCOPE','I-OUTOFSCOPE'])):
@@ -140,7 +146,7 @@ def write_df(df, fname, logger):
     Partitions the given data into chunks
     Create train/test file accordingly
 '''
-def split_train_test(source_path, save_path, logger):
+def split_train_test(source_path, save_path, logger, split_type):
     sent_file = os.path.join(source_path, 'text_only.txt')
     tag_file = os.path.join(source_path, 'tag_only.txt')
     
@@ -174,9 +180,9 @@ def split_train_test(source_path, save_path, logger):
     val_df = intermediate_df[~val_mask]
 
     # Write those train/test dataframes into files
-    invalid_train_count = write_df(train_df, train_fname, logger)
-    invalid_test_count = write_df(test_df, test_fname, logger)
-    invalid_val_count = write_df(val_df, val_fname, logger)
+    invalid_train_count = write_df(train_df, train_fname, logger, split_type)
+    invalid_test_count = write_df(test_df, test_fname, logger, split_type)
+    invalid_val_count = write_df(val_df, val_fname, logger, split_type)
     
     # Print stat
     logger.info("Length of train dataset: {}".format(len(train_df) - invalid_train_count))
@@ -296,12 +302,12 @@ def split_csv(source_path, save_path, logger):
     logger.info("******************************************************")
 
     
-def split(input_file, save_path, verbose, logger):
+def split(input_file, save_path, verbose, logger, split_type):
     sent_file, tag_file = text_tag_convert(input_file, logger, verbose)
     
     source_path = os.path.dirname(sent_file)
     logger.info("Source path: {}".format(source_path))
-    split_train_test(source_path, save_path, logger)
+    split_train_test(source_path, save_path, logger, split_type)
 
         
 def main(**args):
@@ -311,6 +317,7 @@ def main(**args):
     kfold = args["kfold"]
     csv = args["csv"]
     log_dir = args["log_dir"]
+    split_type = args["split_type"]
 
     if not os.path.exists(log_dir):
         os.mkdir(log_dir)
@@ -332,19 +339,32 @@ def main(**args):
         if not os.path.exists(final_path):
             os.mkdir(final_path)
         if not csv:
-            split(input_file, final_path, verbose, logger)
+            split(input_file, final_path, verbose, logger, split_type)
         else:
             split_csv(input_file, final_path, logger)
     
     
 if __name__=="__main__":
     parser = argparse.ArgumentParser("Dataset Splitter Argument Parser")
-    parser.add_argument("-i", "--input_file", default="./data/dataset/total.conll", metavar="PATH", help="Input file path")
-    parser.add_argument("-o", "--output_dir", default="../torchnlp/data/nepsa_all/", metavar="PATH", help="Output Directory")
-    parser.add_argument("-c", "--csv", action='store_true', default=False, help="CSV file splitter")
-    parser.add_argument("-k", "--kfold", dest='kfold', type=int, default=1, metavar="INT", help="K-fold")
-    parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
-    parser.add_argument("-l", "--log_dir", dest="log_dir", type=str, metavar="DIR", default="./logs/",help="Log dir")
+    parser.add_argument("-i", "--input_file", 
+                        default="./data/dataset/total.conll", 
+                        metavar="PATH", help="Input file path")
+    parser.add_argument("-o", "--output_dir", 
+                        default="../torchnlp/data/nepsa_all/", 
+                        metavar="PATH", help="Output Directory")
+    parser.add_argument("-c", "--csv", action='store_true', 
+                        default=False, help="CSV file splitter")
+    parser.add_argument("-k", "--kfold", dest='kfold', type=int, 
+                        default=1, metavar="INT", help="K-fold")
+    parser.add_argument("-v", "--verbose", action='store_true', 
+                        default=False, help="Print description")
+    parser.add_argument("-l", "--log_dir", dest="log_dir", 
+                        type=str, metavar="DIR", 
+                        default="./logs/",help="Log dir")
+    parser.add_argument("-s", "--split_type", type=str, 
+                        choices=['nepsa_all','nepsa_target', 'nepsa_aspect'], 
+                        default='nepsa_all', 
+                        help="Split type [default: nepsa_all]")    
 
     args = vars(parser.parse_args())
 
