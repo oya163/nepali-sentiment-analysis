@@ -40,7 +40,7 @@ class Dataloader():
         self.train_ds, self.val_ds, self.test_ds = data.TabularDataset.splits(path=self.root_path, 
                                                     format='csv', 
                                                     train='train.txt', 
-                                                    validation='val.txt', 
+                                                    validation='dev.txt', 
                                                     test='test.txt',                          
                                                     fields=self.fields)
 
