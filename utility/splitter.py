@@ -309,7 +309,12 @@ def main(**args):
     verbose = args["verbose"]
     kfold = args["kfold"]
     csv = args["csv"]
-    log_file = args["log_file"]
+    log_dir = args["log_dir"]
+
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+
+    log_file = os.path.join(log_dir, 'data.log')
     
     logger = utilities.get_logger(log_file)
     
@@ -338,7 +343,7 @@ if __name__=="__main__":
     parser.add_argument("-c", "--csv", action='store_true', default=False, help="CSV file splitter")
     parser.add_argument("-k", "--kfold", dest='kfold', type=int, default=1, metavar="INT", help="K-fold")
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Print description")
-    parser.add_argument("-l", "--log_file", dest="log_file", type=str, metavar="PATH", default="./logs/data_log.log",help="Log file")
+    parser.add_argument("-l", "--log_dir", dest="log_dir", type=str, metavar="DIR", default="./logs/",help="Log dir")
 
     args = vars(parser.parse_args())
 
