@@ -349,7 +349,9 @@ def main(**args):
     logger = utilities.get_logger(log_file)
     
     # Clean up output directory
-    save_path = os.path.join(save_path, split_type)
+    if not csv:
+        save_path = os.path.join(save_path, split_type)
+        
     if os.path.exists(save_path):
         shutil.rmtree(save_path)
 
