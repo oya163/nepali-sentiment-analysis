@@ -73,3 +73,11 @@ We train sentiment classification model to identify the sentiment polarity of a 
 | BiLSTM | 0.815 | 0.816 | 0.816 | 0.816 |
 | CNN    | 0.811 | 0.812 | 0.811 | 0.811 |
 | SVM    | 0.714 | 0.716 | 0.714 | 0.712 |
+
+
+
+## References
+- [Internet Stat](https://www.Internetworldstats.com/stats3.htm#asia)
+- [They Don't Leave Us Alone Anywhere We Go](https://research.google/pubs/pub47721/)
+- SemEval [2014](http://alt.qcri.org/semeval2014/task4/index.php?id=data-and-tools), [2015](http://alt.qcri.org/semeval2015/task12/) and [2016](http://alt.qcri.org/semeval2016/task5/) Aspect Based Sentiment Analysis
+- [Annotating Targets of Opinions in Arabic using Crowdsourcing](https://www.aclweb.org/anthology/W15-3210.pdf)
