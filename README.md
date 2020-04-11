@@ -1,8 +1,6 @@
 # Nepali Sentiment Analysis
 
-With the increase in internet access in low resource Indic languages, these languages have become prevalent on social media platforms. Two of the most popular low resource Indic languages are Nepali and Bengali. However, there is a lack of fine-grained sentiment analysis tools for comments written in Nepali and Bengali. In this project, we aim to analyze the YouTube comments written in Nepali and Bengali, both code-mixed and code-switched. As a first step to developing a tool, we are creating a Named Targeted Aspect Based Sentiment Analysis Dataset from comments extracted from popular Nepali YouTube videos under the News & Politics category.  We intend to extend this work to create a similar dataset in Bengali. This dataset can be used for empirical studies on multilingual training, domain adaptation and vector-space word mapping techniques. The results will be a major component in systems for identifying abusive comments in South Asian and other low-resource languages.   
-
-We are working on sentiment analysis on social media texts (Youtube comments) in Nepali language. As we can see from latest statistics, there is growing userbase in Facebook/Youtube compared to Twitter. We found out that lately lots of people are commenting in Youtube videos in Nepali language compared to Twitter. Plus, people are more likely to watch trending political development videos in Youtube compared to Twitter. Also, it is more convenient to scrap thousands of comments from a particular video in Youtube. Unfortunately, there is no any Nepali language analytics in Youtube comments. Therefore, our project focuses on sentiment analysis in Youtube comments written in Nepali language.
+With an increase in internet access in Nepal and ease of typing in Nepali, this language has become prevalent on social media platforms. However, there is a lack of fine-grained sentiment analysis for comments written in Nepali. In this project, we aim to analyze the YouTube comments written in Nepali, both code-mixed and code-switched. As a first step, we are creating a Named Targeted Aspect Based Sentiment Analysis Dataset from comments extracted from popular Nepali YouTube videos under the News & Politics category. This dataset can be used for empirical studies on multilingual training, domain adaptation and vector-space word mapping techniques. Hence, this dataset can play a major role in identifying abusive comments in Nepali texts.
 
 
 ## Authors
@@ -58,19 +56,20 @@ Folder Structure for Output:
 
 ## Results
 ### Task 1: Sequence Labelling
-We train sequence labelling model to identify target term, target category, aspect term and aspect category in every comment. The dataset for this task is in CoNLL format
+We train sequence labelling model to identify target terms and aspect terms in every sentence. The dataset for this task is in CoNLL format.
 
-| Model                   | NepSA |
-|-------------------------|-------|
-| BiLSTM + CNN + CRF      | 53.33 |
+| Model      | P      | R      | F1     |
+|------------|--------|--------|--------|
+| BiLSTM+CRF | 0.6070 | 0.5395 | 0.5707 |
+| BERT       | 0.5814 | 0.5788 | 0.5798 |
 
 
 ### Task 2: Sentiment Classification
-We train sentiment classification model to identify sentiment polarity of given aspect term and aspect category. We simply train this model in this format: Text + Aspect Category + Aspect Term -> Polarity
+We train sentiment classification model to identify the sentiment polarity of a given aspect term and category. The dataset is in CSV format.
 
-| Dataset    | Model | F1    |
-|------------|-------|-------|
-| Balanced   | LSTM  | 0.739 |
-| Balanced   | CNN   | 0.767 |
-| Unbalanced | LSTM  | 0.762 |
-| Unbalanced | CNN   | 0.783 |
+| Model  | Acc   | P     | R     | F1    |
+|--------|-------|-------|-------|-------|
+| BERT   | 0.800 | 0.804 | 0.800 | 0.799 |
+| BiLSTM | 0.815 | 0.816 | 0.816 | 0.816 |
+| CNN    | 0.811 | 0.812 | 0.811 | 0.811 |
+| SVM    | 0.714 | 0.716 | 0.714 | 0.712 |
