@@ -4,7 +4,7 @@ import re
 
 sys.path.insert(1, '../thirdparty/bratiaa/')
 from bratiaa import agree as biaa
-from bratiaa.evaluation import *
+from bratiaa.evaluation import exact_match_instance_polarity_evaluation
 
 project = '../agreement_version/agreement/brat_annotator/'
 
