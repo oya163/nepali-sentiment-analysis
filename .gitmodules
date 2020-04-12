@@ -1,0 +1,3 @@
+[submodule "thirdparty/bratiaa"]
+	path = thirdparty/bratiaa
+	url = https://github.com/oya163/bratiaa.git
