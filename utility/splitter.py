@@ -83,7 +83,9 @@ def text_tag_convert(input_file, logger, seq_len, verbose=False):
             
             # Assuming input file has four columns
             # token, start_position, end_position, entity_type
-            if len(row)==4:
+            # Changed to greater than 1 to 
+            # fit old nepali-ner data as well
+            if len(row)>1:
                 sentence.append(row[0])
                 tag.append(row[-1])
             else:

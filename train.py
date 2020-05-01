@@ -292,7 +292,7 @@ class Trainer():
         self.logger.info(f'Test. Loss: {test_loss:.3f} |  Test Acc: {test_acc*100:.4f}%')
       
         # Get precision, recall and F1 score
-        prec, rec, f1, auc = evaluate.prec_rec_f1(gold_list, pred_list)
+        prec, rec, f1, auc = evaluate.prec_rec_f1(gold_list, pred_list)​
         
         self.logger.info("Writing results")
         evaluate.write_results()
