@@ -233,7 +233,6 @@ def main(argv):
 	parser = argparse.ArgumentParser(add_help=True, description=('.ann to json file convertor'))
 	parser.add_argument('-directory', default='../../brat/data/nepsa', help='Input directory')
 	
-	# input_dir = '/home/sandesh/Desktop/brat/data/nepsa'
 	args = parser.parse_args(argv)
 	input_dir = args.directory
 	final_json_data = []

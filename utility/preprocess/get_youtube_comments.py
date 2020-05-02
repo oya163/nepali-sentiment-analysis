@@ -1,6 +1,5 @@
 import os
 
-<<<<<<< HEAD
 urls= ['ATEiz1N58D0',
 'sQ45_FoSV0k',
 '1nXx-0EK-ns',
@@ -9,7 +8,7 @@ urls= ['ATEiz1N58D0',
 '4jOmSfBLRlk',
 'xah2_pUBkIc',
 'FcLe08Rtz_M']
-=======
+
 '''
     Author: Sandesh Timilsina
     Date: 10/15/2019
@@ -37,7 +36,6 @@ urls= ['RxfWgvB-Zcc',
 'qKFQ57sHdD8',
 'zZ8Y5ncN3Po',
 'AQBk02D5PNE']
->>>>>>> 73ade3c4e6d43b9cb4c04627805e06fd928b8e43
 
         
 for url in urls:

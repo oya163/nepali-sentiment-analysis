@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 '''
+    NOTE: THIS IS OBSOLETE. USE BRATIAA
+    RECOMMENDED: https://github.com/oya163/bratiaa
+    
     Merge two conll files to check F1 and Kappa-score
     for inter-annotator aggrement
     

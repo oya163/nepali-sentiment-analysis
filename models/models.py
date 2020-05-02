@@ -32,14 +32,7 @@ class LSTM(nn.Module):
             
         self.ac_size = dataloader.ac_size
         self.ac_embeddings = nn.Embedding(self.ac_size, config.embedding_dim)
-        
-#             self.embedding_dim = config.embedding_dim + self.ac_size
-#             self.one_hot_aspect = np.eye(self.ac_size)
-#             self.one_hot_aspect = torch.from_numpy(self.one_hot_aspect).float()            
-#             self.one_hot_aspect = torch.eye(self.ac_size, dtype=torch.float, requires_grad=True)
-#             print("One hot aspect", self.one_hot_aspect)
-#             print("One hot aspect shape", self.one_hot_aspect.shape)
-            
+                  
         self.lstm = nn.LSTM(self.embedding_dim, 
                            self.hidden_dim, 
                            num_layers=self.num_layers, 

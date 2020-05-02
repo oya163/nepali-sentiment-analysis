@@ -1,3 +1,11 @@
+'''
+    OBSOLETE !!!
+    NOT RECOMMENDED !!!
+    
+    Use
+    https://github.com/oya163/nepali-stemmer
+'''
+
 import sys
 import snowballstemmer
 

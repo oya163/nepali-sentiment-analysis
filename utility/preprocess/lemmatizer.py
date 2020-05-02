@@ -1,6 +1,8 @@
 '''
 	Lemmatize all the text files into one file
-        Uses morfessor
+    Uses morfessor
+    
+    NOT RECOMMENDED: OVER-LEMMATIZATION ISSUE !!!
 	
 	Author - Oyesh Mann Singh
 	Date - 10/23/2016
@@ -33,8 +35,6 @@ def main():
             outname = os.path.basename(f.split('.')[0])+'.lemma'
             output_file = os.path.join(root, outname)
             print(output_file)
-            #i_f = open(filename, 'r', encoding=encoding)
-            #reader = i_f.readlines()
             with open(output_file, 'w', encoding=encoding) as outfile:
                 cmd = "morfessor-segment -L data/morpheme/morpheme.sgm {0} > {1}".format(input_file, output_file)
                 os.system(cmd)

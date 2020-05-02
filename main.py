@@ -91,13 +91,6 @@ def parse_args():
     log_file = os.path.join(args.log_dir, 'complete'+log_suffix)
     data_log = os.path.join(args.log_dir, 'datalog'+log_suffix)
     
-    # If log files exist, remove them
-#     if os.path.exists(log_file):
-#         os.remove(log_file) 
-        
-#     if os.path.exists(data_log):
-#         os.remove(data_log) 
-    
     # Logger
     logger = utilities.get_logger(log_file)
     
@@ -188,34 +181,6 @@ def train_test(config, logger):
         
         # Load data iterator
         dataloader = Dataloader(config, k)
-        
-        # Debugging purpose. DO NOT DELETE
-#         train_iter, val_iter, test_iter = dataloader.load_data(batch_size=1)
-#         e = Evaluator(config, None, None, dataloader, 'debug')
-        
-#         for ((y, ac, at, X), v) in train_iter:
-#             print("TEXT = ", e.numpy_to_sent(X))
-#             print("ASPECT TERM = ", e.numpy_to_at(at))
-#             print("ASPECT CATEGORY = ", e.numpy_to_ac(ac))
-#             print("SENTIMENT STRENGTH = ", e.pred_to_tag(y))
-        
-#         sample = next(iter(train_iter))
-#         print(sample.TEXT)
-#         print("TEXT = ", e.numpy_to_sent(sample.TEXT))
-#         print("ASPECT TERM = ", e.numpy_to_sent(sample.TERM))
-
-#         for i,each in enumerate(iter(train_iter)):
-#             print("TEXT = ", train_iter.dataset.examples[i].TEXT)
-#             print("TERM = ",train_iter.dataset.examples[i].TERM)
-#             print("ASPECT = ",train_iter.dataset.examples[i].ASPECT)
-#             print("SS = ",train_iter.dataset.examples[i].SS)
-        
-        #### Just Run this to check the values ####
-#         print("TEXT = ", train_iter.dataset.examples[0].TEXT)
-#         print("TERM = ",train_iter.dataset.examples[0].TERM)
-#         print("ASPECT = ",train_iter.dataset.examples[0].ASPECT)
-#         print("SS = ",train_iter.dataset.examples[0].SS)
-#         break
 
         # Load model
         arch = LSTM(config, dataloader).to(config.device)

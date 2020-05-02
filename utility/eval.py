@@ -85,13 +85,6 @@ class Evaluator():
             tt = tqdm(iter(self.test_dl), leave=False)
             
             for ((y, ac, at, X), v) in tt:
-#                 print(vars(self.test_dl.dataset.examples[0]))
-#                 print(X.shape)
-#                 print(at.shape)
-#                 print(ac.shape)
-#                 print(y.shape)
-                # Need to fix here to get
-                # data for each with batch_size=8
                 
                 pred = self.model(X, at, ac)
                 

@@ -9,6 +9,7 @@
     How to run:
     >> python jsontocsv_aspect.py -file ../../brat/data/Raw/all_channels.json 
 '''
+
 import os
 import sys
 import argparse

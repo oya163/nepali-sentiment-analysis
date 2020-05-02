@@ -72,9 +72,6 @@ def main():
                         data = i_f.read()
                         o_f.write(data)
                         t_f.write(data)
-    #                     reader = i_f.readlines()
-    #                     for row in reader:
-    #                         o_f.write(row)
                         o_f.write('\n')
                         t_f.write('\n')
 
