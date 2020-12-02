@@ -47,3 +47,8 @@ Please refer modified version of torchnlp [here](https://github.com/oya163/torch
 - [They Don't Leave Us Alone Anywhere We Go](https://research.google/pubs/pub47721/)
 - SemEval [2014](http://alt.qcri.org/semeval2014/task4/index.php?id=data-and-tools), [2015](http://alt.qcri.org/semeval2015/task12/) and [2016](http://alt.qcri.org/semeval2016/task5/) Aspect Based Sentiment Analysis
 - [Annotating Targets of Opinions in Arabic using Crowdsourcing](https://www.aclweb.org/anthology/W15-3210.pdf)
+
+
+
+## Publication
+- To be published in [IEEE ASONAM 2020](http://asonam.cpsc.ucalgary.ca/2020/index.php#)
