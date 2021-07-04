@@ -51,4 +51,16 @@ Please refer modified version of torchnlp [here](https://github.com/oya163/torch
 
 
 ## Publication
-- To be published in [IEEE ASONAM 2020](http://asonam.cpsc.ucalgary.ca/2020/index.php#)
+- Published in [IEEE ASONAM 2020](https://ieeexplore.ieee.org/document/9381292)
+
+## Citation
+    @INPROCEEDINGS{9381292,
+      author={Singh, Oyesh Mann and Timilsina, Sandesh and Bal, Bal Krishna and Joshi, Anupam},
+      booktitle={2020 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining (ASONAM)}, 
+      title={Aspect Based Abusive Sentiment Detection in Nepali Social Media Texts}, 
+      year={2020},
+      volume={},
+      number={},
+      pages={301-308},
+      doi={10.1109/ASONAM49781.2020.9381292}
+    }
