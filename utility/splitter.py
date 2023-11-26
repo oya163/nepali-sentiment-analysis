@@ -170,18 +170,18 @@ def split_train_test(source_path, save_path, logger, split_type):
     
     logger.info("Saving path: {}".format(save_path))
     
-#     if not os.path.exists(save_path):
-#         os.mkdir(save_path)
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
         
     train_fname = os.path.join(save_path,'train.txt')
     test_fname = os.path.join(save_path, 'test.txt')
-    val_fname = os.path.join(save_path, 'dev.txt')
+    val_fname = os.path.join(save_path, 'valid.txt')
     
-    df_txt = pd.read_csv(sent_file, delimiter='\n', encoding='utf-8', 
+    df_txt = pd.read_csv(sent_file, delimiter='\t', encoding='utf-8', 
                          skip_blank_lines=True, header=None, 
                          quoting=csv.QUOTE_NONE, names=['TEXT'])
     
-    df_tag = pd.read_csv(tag_file, delimiter='\n', encoding='utf-8', 
+    df_tag = pd.read_csv(tag_file, delimiter='\t', encoding='utf-8', 
                          skip_blank_lines=True, header=None, 
                          quoting=csv.QUOTE_NONE, names=['TAG'])
 
@@ -192,7 +192,7 @@ def split_train_test(source_path, save_path, logger, split_type):
     train_df = df[mask]
     intermediate_df = df[~mask]
     
-    # To split intermediate into 10/10 into test and dev
+    # To split intermediate into 10/10 into test and valid
     val_mask = np.random.rand(len(intermediate_df)) < 0.5
     test_df = intermediate_df[val_mask]
     val_df = intermediate_df[~val_mask]
@@ -224,7 +224,7 @@ def split_train_test_csv(source_path, save_path, logger):
         
     train_fname = os.path.join(save_path,'train.txt')
     test_fname = os.path.join(save_path, 'test.txt')
-    val_fname = os.path.join(save_path, 'dev.txt')
+    val_fname = os.path.join(save_path, 'valid.txt')
     
     df_txt = pd.read_csv(source_path, delimiter=',', encoding='utf-8', 
                          skip_blank_lines=True, header=['ss', 'ac', 'at', 'text'], 
@@ -237,7 +237,7 @@ def split_train_test_csv(source_path, save_path, logger):
     train_df = df[mask]
     intermediate_df = df[~mask]
     
-    # To split intermediate into 10/10 into test and dev
+    # To split intermediate into 10/10 into test and valid
     val_mask = np.random.rand(len(intermediate_df)) < 0.5
     test_df = intermediate_df[val_mask]
     val_df = intermediate_df[~val_mask]
@@ -277,7 +277,7 @@ def split_csv(source_path, save_path, logger):
         
     train_fname = os.path.join(save_path,'train.txt')
     test_fname = os.path.join(save_path, 'test.txt')
-    val_fname = os.path.join(save_path, 'dev.txt')
+    val_fname = os.path.join(save_path, 'valid.txt')
     
     df_txt = pd.read_csv(source_path, delimiter=',', 
                          encoding='utf-8', 
@@ -374,10 +374,10 @@ def main(**args):
 if __name__=="__main__":
     parser = argparse.ArgumentParser("Dataset Splitter Argument Parser")
     parser.add_argument("-i", "--input_file", 
-                        default="./data/dataset/total.conll", 
+                        default="./data/conll/total.conll", 
                         metavar="PATH", help="Input file path")
     parser.add_argument("-o", "--output_dir", 
-                        default="../torchnlp/data/", 
+                        default="./data/", 
                         metavar="PATH", help="Output Directory")
     parser.add_argument("-c", "--csv", action='store_true', 
                         default=False, help="CSV file splitter")
